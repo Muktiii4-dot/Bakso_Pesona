@@ -10,7 +10,7 @@
             >
                 <img 
                     src="{{ asset('images/logo_navbar.svg') }}"
-                    alt="Logo"
+                    alt="Logo Navbar"
                     class="h-12 w-auto"
                 >
             </a>
