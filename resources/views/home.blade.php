@@ -1,5 +1,4 @@
 @extends('layouts.app')
-<<<<<<< HEAD
 
 @section('title', 'Bakso Pesona — Rasa Lezat Bikin Nagih!')
 
@@ -29,12 +28,12 @@
 
             <div class="mt-7 flex flex-wrap items-center gap-3">
                 <a href="{{ route('products.index') }}"
-                   class="inline-flex items-center gap-3 rounded-full bg-[#E87532] px-6 py-3.5 text-sm font-extrabold text-white shadow-lg shadow-black/20 transition hover:-translate-y-0.5 hover:bg-[#F28A42] focus:outline-none focus:ring-2 focus:ring-white">
+                    class="inline-flex items-center gap-3 rounded-full bg-[#E87532] px-6 py-3.5 text-sm font-extrabold text-white shadow-lg shadow-black/20 transition hover:-translate-y-0.5 hover:bg-[#F28A42] focus:outline-none focus:ring-2 focus:ring-white">
                     Pesan Sekarang <span aria-hidden="true">→</span>
                 </a>
 
                 <a href="#produk"
-                   class="rounded-full border border-white/35 px-5 py-3.5 text-sm font-bold text-white transition hover:bg-white/10">
+                    class="rounded-full border border-white/35 px-5 py-3.5 text-sm font-bold text-white transition hover:bg-white/10">
                     Jelajahi Menu
                 </a>
             </div>
@@ -70,7 +69,7 @@
     </div>
 
     <svg class="absolute bottom-0 left-0 h-9 w-full text-[#FFF8F1] sm:h-14"
-         viewBox="0 0 1440 90" preserveAspectRatio="none" aria-hidden="true">
+        viewBox="0 0 1440 90" preserveAspectRatio="none" aria-hidden="true">
         <path fill="currentColor" d="M0,42 C180,95 330,76 500,48 C690,14 790,85 970,58 C1140,32 1270,25 1440,45 L1440,90 L0,90 Z"></path>
     </svg>
 </section>
@@ -139,7 +138,7 @@
             </p>
 
             <a href="{{ route('home') }}#tentang"
-               class="mt-6 inline-flex items-center gap-2 rounded-full bg-[#74191B] px-6 py-3 text-sm font-bold text-white transition hover:bg-[#9A2824]">
+                class="mt-6 inline-flex items-center gap-2 rounded-full bg-[#74191B] px-6 py-3 text-sm font-bold text-white transition hover:bg-[#9A2824]">
                 Kenali Cerita Kami <span aria-hidden="true">→</span>
             </a>
         </div>
@@ -167,7 +166,7 @@
             </p>
 
             <a href="{{ route('products.index') }}"
-               class="mt-6 inline-flex items-center gap-3 rounded-full bg-[#FFF4E8] px-6 py-3 text-sm font-extrabold text-[#8F241F] transition hover:-translate-y-0.5 hover:bg-white">
+                class="mt-6 inline-flex items-center gap-3 rounded-full bg-[#FFF4E8] px-6 py-3 text-sm font-extrabold text-[#8F241F] transition hover:-translate-y-0.5 hover:bg-white">
                 Jelajahi Produk <span aria-hidden="true">→</span>
             </a>
         </div>
@@ -212,7 +211,7 @@
             </div>
 
             <a href="{{ route('products.index') }}"
-               class="text-sm font-extrabold text-[#B83B25] hover:text-[#E87532]">
+                class="text-sm font-extrabold text-[#B83B25] hover:text-[#E87532]">
                 Lihat semua produk →
             </a>
         </div>
@@ -261,7 +260,7 @@
             </div>
 
             <a href="{{ route('products.index') }}"
-               class="shrink-0 pb-1 text-xs font-extrabold text-[#B83B25] transition hover:text-[#E87532] sm:text-sm">
+                class="shrink-0 pb-1 text-xs font-extrabold text-[#B83B25] transition hover:text-[#E87532] sm:text-sm">
                 Lihat Semua →
             </a>
         </div>
@@ -274,7 +273,6 @@
                 :price="25000"
                 image="https://images.unsplash.com/photo-1569718212165-3a8278d5f624?auto=format&fit=crop&w=700&q=80"
                 badge="Favorit"
-=======
 @section('title', 'Bakso Pesona -Rasa Lezat Bikin Nagih')
 @section('content')
 
@@ -428,7 +426,6 @@
                 description="Bakso, tahu, siomay, mie, sayur dan kuah gurih."
                 :price="25000"
                 badge="Best Seller"
->>>>>>> b6e12ae2d658d726b7aeb6d4674d9599852860b2
             />
 
             <x-product-card
