@@ -1,5 +1,5 @@
 <header class="sticky top-0 z-50 norder-b border-white/10 bg-[#74191B]/95 text-white shadow-sm backdrop-blur-md" x-data="{ open: false }">
-    <div class="mx-auto max-w-7xl px-4 ms:px-6 lg:px-10">
+    <div class="mx-auto max-w-7xl px-4 sm:px-6 lg:px-10">
 
     {{-- BARIS UTAMA NAVBAR --}}
     <div class="flex h-[84px] items-center justify-between gap-6">
@@ -7,13 +7,13 @@
         {{-- LOGO --}}
         <a
             href="{{ route('home') }}"
-            class="relative flex h-full w-[180px] shrink-0 items-center"
+            class="flex h-[120px] w-[120px] shrink-0 items-center justify-center"
             aria-label="Bakso Pesona - Beranda"
         >
             <img
-                src="{{ asset('images/logo_navbar.svg') }}"
+                src="{{ asset('images/logo_navbar.png') }}"
                 alt="Bakso Pesona"
-                class="absolute right-15 top-1/2 h-[250px] w-auto max-w-none -translate-y-1/2 object-contain"
+                class="block h-auto w-full max-h-[100px] object-contain"
             >
         </a>
 
@@ -48,7 +48,7 @@
             action="{{ route('products.index') }}"
             method="GET"
             role="search"
-            class="relative left-50 hidden h-10 w-48 shrink-0 items-center gap-2 rounded-full border border-white/30 bg-white px-4 xl:flex"
+            class="relative left-50 hidden h-10 w-44 shrink-0 items-center gap-2 rounded-full border border-white/30 bg-white px-4 xl:flex"
         >
             <svg class="h-4 w-4 shrink-0 text-[#9A8179]"
                 fill="none" stroke="currentColor" viewBox="0 0 24 24"
@@ -67,10 +67,64 @@
         </form>
 
         {{-- IKON AKUN DAN KERANJANG --}}
-        <div class="hidden shrink-0 items-center gap-3 lg:flex">
-            {{-- Pindahkan kedua elemen <a> akun dan keranjang
-                dari kode navbar lamamu ke dalam div ini. --}}
-        </div>
+        <div class="hidden shrink-0 translate-x-12 items-center gap-3 lg:flex">
+
+                {{-- Akun: tujuan sementara sampai login dibuat --}}
+                <a
+                    href="{{ route('home') }}#akun"
+                    aria-label="Akun pengguna"
+                    title="Akun pengguna"
+                    class="flex h-10 w-10 items-center justify-center rounded-full border border-white/25 text-white transition hover:border-[#FFB45E] hover:bg-white/10 hover:text-[#FFB45E]"
+                >
+                    <svg
+                        class="h-5 w-5"
+                        fill="none"
+                        stroke="currentColor"
+                        viewBox="0 0 24 24"
+                        aria-hidden="true"
+                    >
+                        <circle cx="12" cy="8" r="3.5" stroke-width="1.7"/>
+                        <path
+                            d="M5 20c0-3.5 2.8-6 7-6s7 2.5 7 6"
+                            stroke-width="1.7"
+                            stroke-linecap="round"
+                        />
+                    </svg>
+                </a>
+
+                {{-- Keranjang: tujuan sementara sampai fitur cart dibuat --}}
+                <a
+                    href="{{ route('home') }}#keranjang"
+                    aria-label="Keranjang belanja"
+                    title="Keranjang belanja"
+                    class="relative flex h-10 w-10 items-center justify-center rounded-full border border-white/25 text-white transition hover:border-[#FFB45E] hover:bg-white/10 hover:text-[#FFB45E]"
+                >
+                    <svg
+                        class="h-5 w-5"
+                        fill="none"
+                        stroke="currentColor"
+                        viewBox="0 0 24 24"
+                        aria-hidden="true"
+                    >
+                        <path
+                            d="M3 4h2l2.2 10.2a2 2 0 0 0 2 1.6h7.9a2 2 0 0 0 1.9-1.4L21 8H6"
+                            stroke-width="1.7"
+                            stroke-linecap="round"
+                            stroke-linejoin="round"
+                        />
+                        <circle cx="10" cy="20" r="1" fill="currentColor"/>
+                        <circle cx="18" cy="20" r="1" fill="currentColor"/>
+                    </svg>
+
+                    {{-- Badge ini masih visual; belum menghitung cart sebenarnya --}}
+                    <span
+                        class="absolute -right-1 -top-1 flex h-[17px] min-w-[17px] items-center justify-center rounded-full bg-[#FFB45E] px-1 text-[10px] font-extrabold text-[#74191B]"
+                        aria-label="0 item di keranjang"
+                    >
+                        0
+                    </span>
+                </a>
+            </div>
 
         {{-- TOMBOL MOBILE --}}
         <button
