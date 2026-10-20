@@ -1,14 +1,30 @@
 <?php
 
-<<<<<<< HEAD
 use App\Http\Controllers\ProductController;
+use App\Models\Category;
+use App\Models\Product;
 use Illuminate\Support\Facades\Route;
 
-
 Route::get('/', function () {
-    return view('home');
-})->name('home');
+    $featuredProducts = product::with('category')
+        ->where('is_available', true)
+        ->latest()
+        ->take(4)
+        ->get();
 
+    $categories = Category::withCount([
+        'products' => function ($query) {
+            $query->where('is_available', true);
+        },
+    ])
+        ->orderBy('name')
+        ->get();
+
+    return view('home', compact(
+        'featuredProducts',
+        'categories'
+    ));
+})->name('home');
 
 /*
 |--------------------------------------------------------------------------
@@ -18,18 +34,10 @@ Route::get('/', function () {
 
 Route::get('/produk', [
     ProductController::class,
-    'index'
+    'index',
 ])->name('products.index');
-
 
 Route::get('/produk/{slug}', [
     ProductController::class,
-    'show'
+    'show',
 ])->name('products.show');
-=======
-use Illuminate\Support\Facades\Route;
-
-Route::get('/', function () {
-    return view('home');
-})->name('home');
->>>>>>> b6e12ae2d658d726b7aeb6d4674d9599852860b2

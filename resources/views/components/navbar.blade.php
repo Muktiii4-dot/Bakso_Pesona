@@ -67,10 +67,64 @@
         </form>
 
         {{-- IKON AKUN DAN KERANJANG --}}
-        <div class="hidden shrink-0 items-center gap-3 lg:flex">
-            {{-- Pindahkan kedua elemen <a> akun dan keranjang
-                dari kode navbar lamamu ke dalam div ini. --}}
-        </div>
+        <div class="hidden shrink-0 translate-x-12 items-center gap-3 lg:flex">
+
+                {{-- Akun: tujuan sementara sampai login dibuat --}}
+                <a
+                    href="{{ route('home') }}#akun"
+                    aria-label="Akun pengguna"
+                    title="Akun pengguna"
+                    class="flex h-10 w-10 items-center justify-center rounded-full border border-white/25 text-white transition hover:border-[#FFB45E] hover:bg-white/10 hover:text-[#FFB45E]"
+                >
+                    <svg
+                        class="h-5 w-5"
+                        fill="none"
+                        stroke="currentColor"
+                        viewBox="0 0 24 24"
+                        aria-hidden="true"
+                    >
+                        <circle cx="12" cy="8" r="3.5" stroke-width="1.7"/>
+                        <path
+                            d="M5 20c0-3.5 2.8-6 7-6s7 2.5 7 6"
+                            stroke-width="1.7"
+                            stroke-linecap="round"
+                        />
+                    </svg>
+                </a>
+
+                {{-- Keranjang: tujuan sementara sampai fitur cart dibuat --}}
+                <a
+                    href="{{ route('home') }}#keranjang"
+                    aria-label="Keranjang belanja"
+                    title="Keranjang belanja"
+                    class="relative flex h-10 w-10 items-center justify-center rounded-full border border-white/25 text-white transition hover:border-[#FFB45E] hover:bg-white/10 hover:text-[#FFB45E]"
+                >
+                    <svg
+                        class="h-5 w-5"
+                        fill="none"
+                        stroke="currentColor"
+                        viewBox="0 0 24 24"
+                        aria-hidden="true"
+                    >
+                        <path
+                            d="M3 4h2l2.2 10.2a2 2 0 0 0 2 1.6h7.9a2 2 0 0 0 1.9-1.4L21 8H6"
+                            stroke-width="1.7"
+                            stroke-linecap="round"
+                            stroke-linejoin="round"
+                        />
+                        <circle cx="10" cy="20" r="1" fill="currentColor"/>
+                        <circle cx="18" cy="20" r="1" fill="currentColor"/>
+                    </svg>
+
+                    {{-- Badge ini masih visual; belum menghitung cart sebenarnya --}}
+                    <span
+                        class="absolute -right-1 -top-1 flex h-[17px] min-w-[17px] items-center justify-center rounded-full bg-[#FFB45E] px-1 text-[10px] font-extrabold text-[#74191B]"
+                        aria-label="0 item di keranjang"
+                    >
+                        0
+                    </span>
+                </a>
+            </div>
 
         {{-- TOMBOL MOBILE --}}
         <button
