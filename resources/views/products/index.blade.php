@@ -92,89 +92,90 @@
 
                 </div>
 
+                <div class="grid grid-cols-2 gap-3">
+                    {{-- Category --}}
+                    <div class="min-w-0">
 
-                {{-- Category --}}
-                <div>
+                        <label
+                            for="category"
+                            class="mb-2 block text-xs font-bold text-gray-600"
+                        >
+                            Kategori
+                        </label>
 
-                    <label
-                        for="category"
-                        class="mb-2 block text-xs font-bold text-gray-600"
-                    >
-                        Kategori
-                    </label>
+                        <select
+                            id="category"
+                            name="category"
+                            class="h-11 min-w-[170px] rounded-xl border border-gray-200 bg-white px-4 text-sm outline-none focus:border-pesona-orange"
+                        >
 
-                    <select
-                        id="category"
-                        name="category"
-                        class="h-11 min-w-[170px] rounded-xl border border-gray-200 bg-white px-4 text-sm outline-none focus:border-pesona-orange"
-                    >
-
-                        <option value="Semua">
-                            Semua
-                        </option>
-
-                        @foreach($categories as $category)
-
-                            <option
-                                value="{{ $category }}"
-                                @selected($selectedCategory === $category)
-                            >
-                                {{ $category }}
+                            <option value="Semua">
+                                Semua
                             </option>
 
-                        @endforeach
+                            @foreach($categories as $category)
 
-                    </select>
+                                <option
+                                    value="{{ $category }}"
+                                    @selected($selectedCategory === $category)
+                                >
+                                    {{ $category }}
+                                </option>
 
-                </div>
+                            @endforeach
+
+                        </select>
+
+                    </div>
 
 
-                {{-- Sorting --}}
-                <div>
+                    {{-- Sorting --}}
+                    <div class="min-w-0">
 
-                    <label
-                        for="sort"
-                        class="mb-2 block text-xs font-bold text-gray-600"
-                    >
-                        Urutkan
-                    </label>
-
-                    <select
-                        id="sort"
-                        name="sort"
-                        class="h-11 min-w-[180px] rounded-xl border border-gray-200 bg-white px-4 text-sm outline-none focus:border-pesona-orange"
-                    >
-
-                        <option
-                            value="default"
-                            @selected($selectedSort === 'default')
+                        <label
+                            for="sort"
+                            class="mb-2 block text-xs font-bold text-gray-600"
                         >
-                            Terbaru
-                        </option>
+                            Urutkan
+                        </label>
 
-                        <option
-                            value="price_low"
-                            @selected($selectedSort === 'price_low')
+                        <select
+                            id="sort"
+                            name="sort"
+                            class="h-11 min-w-[180px] rounded-xl border border-gray-200 bg-white px-4 text-sm outline-none focus:border-pesona-orange"
                         >
-                            Harga Terendah
-                        </option>
 
-                        <option
-                            value="price_high"
-                            @selected($selectedSort === 'price_high')
-                        >
-                            Harga Tertinggi
-                        </option>
+                            <option
+                                value="default"
+                                @selected($selectedSort === 'default')
+                            >
+                                Terbaru
+                            </option>
 
-                        <option
-                            value="name_asc"
-                            @selected($selectedSort === 'name_asc')
-                        >
-                            Nama A-Z
-                        </option>
+                            <option
+                                value="price_low"
+                                @selected($selectedSort === 'price_low')
+                            >
+                                Harga Terendah
+                            </option>
 
-                    </select>
+                            <option
+                                value="price_high"
+                                @selected($selectedSort === 'price_high')
+                            >
+                                Harga Tertinggi
+                            </option>
 
+                            <option
+                                value="name_asc"
+                                @selected($selectedSort === 'name_asc')
+                            >
+                                Nama A-Z
+                            </option>
+
+                        </select>
+
+                    </div>
                 </div>
 
             </div>
@@ -299,8 +300,8 @@
 
             {{-- Pagination --}}
             @if ($products->hasPages())
-                <div class="mt-8">
-                    {{ $products->links() }}
+                <div class="mt-8 border-t border-orange-100 pt-6">
+                    {{ $products->links('vendor.pagination.pesona') }}
                 </div>
             @endif
     </div>

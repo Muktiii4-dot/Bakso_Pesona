@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\ProductController;
+use App\Http\Controllers\CartController;
 use App\Models\Category;
 use App\Models\Product;
 use Illuminate\Support\Facades\Route;
@@ -41,3 +42,21 @@ Route::get('/produk/{slug}', [
     ProductController::class,
     'show'
 ])->name('products.show');
+
+/*
+|--------------------------------------------------------------------------
+| Keranjang Routes
+|--------------------------------------------------------------------------
+*/
+
+Route::get('/keranjang', [CartController::class, 'index'])
+    ->name('cart.index');
+
+Route::post('/keranjang/tambah/{product}', [CartController::class, 'store'])
+    ->name('cart.store');
+
+Route::patch('/keranjang/{product}', [CartController::class, 'update'])
+    ->name('cart.update');
+
+Route::delete('/keranjang/{product}', [CartController::class, 'destroy'])
+    ->name('cart.destroy');

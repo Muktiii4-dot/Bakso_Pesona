@@ -59,13 +59,13 @@ class ProductController extends Controller
         $sort = $request->query('sort', 'default');
 
         if ($sort === 'price_low') {
-            $query->orderBy('price');
+            $query->orderBy('price')->orderByDesc('id');
         } elseif ($sort === 'price_high') {
-            $query->orderByDesc('price');
+            $query->orderByDesc('price')->orderByDesc('id');
         } elseif ($sort === 'name_asc') {
-            $query->orderBy('name');
+            $query->orderBy('name')->orderBy('id');
         } else {
-            $query->orderBy('id');
+            $query->orderByDesc('created_at')->orderByDesc('id');
         }
 
         // Ambil data dari database dan pertahankan format array lama.
