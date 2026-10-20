@@ -32,7 +32,9 @@ class ProductController extends Controller
      */
     public function index(Request $request)
     {
-        $query = Product::query()->with('category');
+        $query = Product::query()
+            ->with('category')
+            ->where('is_available', true);
 
         // Pencarian nama dan deskripsi produk.
         $search = trim($request->query('q', ''));
@@ -67,8 +69,10 @@ class ProductController extends Controller
         }
 
         // Ambil data dari database dan pertahankan format array lama.
-        $products = $query->get()
-            ->map(fn (Product $product) => $this->formatProduct($product));
+        $products = $query->paginate(4)->withQueryString();
+        $products->getCollection()->transform(
+            fn (Product $product) => $this->formatProduct($product)
+        );
 
         // Ambil kategori langsung dari database.
         $categories = Category::query()
@@ -92,11 +96,7 @@ class ProductController extends Controller
         $product = Product::query()
             ->with('category')
             ->where('slug', $slug)
-            ->first();
-
-        if (!$product) {
-            abort(404);
-        }
+            ->firstOrFail();
 
         return view('products.show', [
             'product' => $this->formatProduct($product),

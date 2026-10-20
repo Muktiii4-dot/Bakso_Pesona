@@ -240,7 +240,7 @@
                 </h2>
 
                 <p class="mt-1 text-sm text-gray-500">
-                    Menampilkan {{ $products->count() }} produk
+                    Menampilkan {{ $products->count() }} dari {{ $products->total() }} produk
                 </p>
 
             </div>
@@ -297,6 +297,12 @@
 
         @endif
 
+            {{-- Pagination --}}
+            @if ($products->hasPages())
+                <div class="mt-8">
+                    {{ $products->links() }}
+                </div>
+            @endif
     </div>
 
 </section>

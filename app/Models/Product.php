@@ -8,14 +8,14 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 class Product extends Model
 {
     protected $fillable = [
-        'category-id',
+        'category_id',
         'name',
         'slug',
         'description',
         'price',
         'image',
         'badge',
-        'is-available',
+        'is_available',
     ];
 
     protected function casts(): array

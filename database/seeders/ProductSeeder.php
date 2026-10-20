@@ -2,8 +2,8 @@
 
 namespace Database\Seeders;
 
-use App\Models\Category;
-use App\Models\product;
+use App\Models\category;
+use App\Models\Product;
 use Illuminate\Database\Seeder;
 
 class ProductSeeder extends Seeder
@@ -97,14 +97,14 @@ class ProductSeeder extends Seeder
         ];
 
         foreach ($products as $item) {
-            $categoryId = Category::where(
+            $categoryId = category::where(
                 'slug',
                 $item['category']
             )->value('id');
 
             if (!$categoryId) {
                 throw new \RuntimeException(
-                    "Kategori '{$item['category']}' tidak ditemukan."
+                    "Kategori '{$item['category']}' Tidak Ditemukan."
                 );
             }
 

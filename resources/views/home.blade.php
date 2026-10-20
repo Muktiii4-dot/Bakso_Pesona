@@ -289,27 +289,38 @@
         </div>
 
         <div class="mt-8 grid grid-cols-2 gap-3 sm:grid-cols-2 sm:gap-5 lg:grid-cols-4">
+            <x-product-card
+                name="Bakso Malang Original"
+                slug="bakso-malang-original"
+                description="Bakso, tahu, siomay, mie, dan kuah gurih."
+                :price="25000"
+                image="https://images.unsplash.com/photo-1569718212165-3a8278d5f624?auto=format&fit=crop&w=700&q=80"
+                badge="Favorit"
+            />
 
-            @forelse ($featuredProducts as $product)
-                <x-product-card
-                    :name="$product->name"
-                    :slug="$product->slug"
-                    :description="$product->description ?? 'Temukan pilihan menu Bakso Pesona.'"
-                    :price="$product->price"
-                    :image="$product->image"
-                    :badge="$product->badge"
-                />
-            @empty
-                <div class="col-span-full rounded-2xl border border-[#F1DED2] bg-white p-8 text-center">
-                    <p class="font-bold text-[#49251F]">
-                        Produk pilihan belum tersedia.
-                    </p>
-                    <p class="mt-2 text-sm text-[#806A62]">
-                        Silakan kembali lagi nanti untuk melihat pilihan menu kami.
-                    </p>
-                </div>
-            @endforelse
+            <x-product-card
+                name="Bakso Pedas"
+                slug="bakso-pedas"
+                description="Kuah pedas dengan racikan bumbu khas."
+                :price="25000"
+                image="https://images.unsplash.com/photo-1563245372-f21724e3856d?auto=format&fit=crop&w=700&q=80"
+            />
 
+            <x-product-card
+                name="Bakso Keju"
+                slug="bakso-keju"
+                description="Perpaduan rasa gurih dan isian keju."
+                :price="30000"
+                image="https://images.unsplash.com/photo-1547592180-85f173990554?auto=format&fit=crop&w=700&q=80"
+            />
+
+            <x-product-card
+                name="Mie Bakso Jumbo"
+                slug="mie-bakso-jumbo"
+                description="Porsi mantap untuk menemani waktu makan."
+                :price="35000"
+                image="https://images.unsplash.com/photo-1565123409695-7b5ef63a7a6d?auto=format&fit=crop&w=700&q=80"
+            />
         </div>
 
         <p class="mt-4 text-xs leading-5 text-[#8B7770]">

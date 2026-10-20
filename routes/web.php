@@ -39,5 +39,5 @@ Route::get('/produk', [
 
 Route::get('/produk/{slug}', [
     ProductController::class,
-    'show',
+    'show'
 ])->name('products.show');
