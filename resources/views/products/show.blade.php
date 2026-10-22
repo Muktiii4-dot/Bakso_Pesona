@@ -142,66 +142,85 @@
 
                 </div>
 
+                {{-- Quantity & Add Cart --}}
+                <form
+                    action="{{ route('cart.store', $product['id']) }}"
+                    method="POST"
+                    class="mt-8"
+                >
+                    @csrf
 
-                {{-- Quantity --}}
-                <div class="mt-8">
-
-                    <label class="text-sm font-bold text-gray-900">
-                        Jumlah
-                    </label>
-
-                    <div class="mt-3 flex items-center">
-
-                        <button
-                            type="button"
-                            class="flex h-11 w-11 items-center justify-center rounded-l-xl border border-gray-200 text-xl font-bold hover:bg-gray-50"
+                    {{-- Quantity --}}
+                    <div>
+                        <label
+                            for="quantity"
+                            class="text-sm font-bold text-gray-900"
                         >
-                            −
-                        </button>
+                            Jumlah
+                        </label>
 
-                        <input
-                            type="number"
-                            value="1"
-                            min="1"
-                            class="h-11 w-16 border-y border-gray-200 text-center text-sm font-bold outline-none"
-                        >
+                        <div class="mt-3 flex items-center">
+                            <button
+                                type="button"
+                                onclick="const input = this.parentElement.querySelector('input[name=quantity]'); input.value = Math.max(1, Number(input.value || 1) - 1);"
+                                class="flex h-11 w-11 items-center justify-center rounded-l-xl border border-gray-200 text-xl font-bold hover:bg-gray-50"
+                                aria-label="Kurangi jumlah"
+                            >
+                                −
+                            </button>
 
-                        <button
-                            type="button"
-                            class="flex h-11 w-11 items-center justify-center rounded-r-xl border border-gray-200 text-xl font-bold hover:bg-gray-50"
-                        >
-                            +
-                        </button>
+                            <input
+                                type="number"
+                                name="quantity"
+                                id="quantity"
+                                value="{{ old('quantity', 1) }}"
+                                min="1"
+                                max="99"
+                                required
+                                class="h-11 w-16 border-y border-gray-200 text-center text-sm font-bold outline-none"
+                            >
 
+                            <button
+                                type="button"
+                                onclick="const input = this.parentElement.querySelector('input[name=quantity]'); input.value = Math.min(99, Number(input.value || 1) + 1);"
+                                class="flex h-11 w-11 items-center justify-center rounded-r-xl border border-gray-200 text-xl font-bold hover:bg-gray-50"
+                                aria-label="Tambah jumlah"
+                            >
+                                +
+                            </button>
+                        </div>
+
+                        @error('quantity')
+                            <p class="mt-2 text-sm text-red-600">
+                                {{ $message }}
+                            </p>
+                        @enderror
                     </div>
 
-                </div>
-
-
-                {{-- Add Cart --}}
-                <button
-                    type="button"
-                    class="mt-7 flex w-full items-center justify-center gap-3 rounded-xl bg-pesona-orange px-6 py-4 font-bold text-white transition hover:bg-pesona-red"
-                >
-
-                    <svg
-                        class="h-5 w-5"
-                        fill="none"
-                        stroke="currentColor"
-                        viewBox="0 0 24 24"
+                    {{-- Add Cart --}}
+                    <button
+                        type="submit"
+                        @disabled(!$product['is_available'] ?? false)
+                        class="mt-7 flex w-full items-center justify-center gap-3 rounded-xl bg-pesona-orange px-6 py-4 font-bold text-white transition hover:bg-pesona-red disabled:cursor-not-allowed disabled:opacity-50"
                     >
-                        <path
-                            stroke-linecap="round"
-                            stroke-linejoin="round"
-                            stroke-width="2"
-                            d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13 5.4 5M7 13l-2 2h12m-9 4a1 1 0 1 1-2 0m10 0a1 1 0 1 1-2 0"
-                        />
-                    </svg>
+                        <svg
+                            class="h-5 w-5"
+                            fill="none"
+                            stroke="currentColor"
+                            viewBox="0 0 24 24"
+                            aria-hidden="true"
+                        >
+                            <path
+                                stroke-linecap="round"
+                                stroke-linejoin="round"
+                                stroke-width="2"
+                                d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13 5.4 5M7 13l-2 2h12m-9 4a1 1 0 1 1-2 0m10 0a1 1 0 1 1-2 0"
+                            />
+                        </svg>
 
-                    Tambah ke Keranjang
-
-                </button>
-
+                        {{ $product['is_available'] ?? false ? 'Tambah ke Keranjang' : 'Produk Tidak Tersedia' }}
+                    </button>
+                </form>
 
                 {{-- Back --}}
                 <a

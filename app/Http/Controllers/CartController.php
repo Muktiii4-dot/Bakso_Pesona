@@ -2,51 +2,65 @@
 
 namespace App\Http\Controllers;
 
-use Ap\Models\Product;
+use App\Models\Product;
 use Illuminate\Http\Request;
 
 class CartController extends Controller
 {
+    /**
+     * Key session untuk menyimpan data keranjang.
+     */
     private const CART_KEY = 'bakso_pesona_cart';
 
     /**
-     * Menampilkan isi keranjang
+     * Menampilkan isi keranjang belanja.
      */
-
     public function index()
     {
-        $cart = session()->get(Self::CART_KEY, []);
+        $cart = session()->get(self::CART_KEY, []);
 
-        $product = Product::whereIn('id', array_keys($cart))
+        // Ambil data produk yang tersimpan di keranjang.
+        $products = Product::whereIn('id', array_keys($cart))
             ->get()
             ->keyBy('id');
 
-        $items = collect($cart)->map(function ($quantity, $productId) use ($products) {
-            $product = $products->get($productId);
+        // Gabungkan data produk, kuantitas, dan subtotal.
+        $items = collect($cart)
+            ->map(function ($quantity, $productId) use ($products) {
+                $product = $products->get($productId);
 
-            if(!$product) {
-                return null;
-            }
+                // Abaikan produk yang sudah tidak ditemukan di database.
+                if (!$product) {
+                    return null;
+                }
 
-            return [
-                'product' => $product,
-                'quantity' => (int) $quantity,
-                'subtotal' => (float) $product->price * (int) $quantity,
-            ];
-        })->filter()->values();
+                $quantity = (int) $quantity;
 
+                return [
+                    'product' => $product,
+                    'quantity' => $quantity,
+                    'subtotal' => (float) $product->price * $quantity,
+                ];
+            })
+            ->filter()
+            ->values();
+
+        // Hitung total seluruh produk.
         $total = $items->sum('subtotal');
+
         return view('cart.index', compact('items', 'total'));
     }
 
     /**
-     * Menambahkan produk ke keranjang
+     * Menambahkan produk ke keranjang.
      */
-
     public function store(Request $request, Product $product)
     {
-        if(!$product->is_available) {
-            return back()->with('error', 'Maaf, produk ini sedang tidak tersedia.');
+        if (!$product->is_available) {
+            return back()->with(
+                'error',
+                'Maaf, produk ini sedang tidak tersedia.'
+            );
         }
 
         $validated = $request->validate([
@@ -54,12 +68,16 @@ class CartController extends Controller
         ]);
 
         $cart = session()->get(self::CART_KEY, []);
+
         $productId = (string) $product->id;
         $currentQuantity = (int) ($cart[$productId] ?? 0);
         $newQuantity = $currentQuantity + (int) $validated['quantity'];
 
         if ($newQuantity > 99) {
-            return back()->with('error', 'Maksimal 99 unit untuk setiap produk.');
+            return back()->with(
+                'error',
+                'Maksimal 99 unit untuk setiap produk.'
+            );
         }
 
         $cart[$productId] = $newQuantity;
@@ -68,13 +86,12 @@ class CartController extends Controller
 
         return redirect()
             ->route('cart.index')
-            ->with('succes', 'Produk berhasil ditambahkan ke dalam keranjang.');
+            ->with('success', 'Produk berhasil ditambahkan ke keranjang.');
     }
 
     /**
-     * Memperbarui kuantitas produk
+     * Memperbarui kuantitas produk di keranjang.
      */
-
     public function update(Request $request, Product $product)
     {
         $validated = $request->validate([
@@ -82,7 +99,10 @@ class CartController extends Controller
         ]);
 
         if (!$product->is_available) {
-            return back()->with('error', 'Produk ini tidak tersedia.');
+            return back()->with(
+                'error',
+                'Produk ini sedang tidak tersedia.'
+            );
         }
 
         $cart = session()->get(self::CART_KEY, []);
@@ -100,13 +120,12 @@ class CartController extends Controller
 
         return redirect()
             ->route('cart.index')
-            ->with('succes', 'Jumlah produk berhasil diperbarui.');
+            ->with('success', 'Jumlah produk berhasil diperbarui.');
     }
 
     /**
      * Menghapus produk dari keranjang.
      */
-
     public function destroy(Product $product)
     {
         $cart = session()->get(self::CART_KEY, []);
@@ -118,6 +137,6 @@ class CartController extends Controller
 
         return redirect()
             ->route('cart.index')
-            ->with('succes', 'Produk berhasil dihapus dari keranjang.');
+            ->with('success', 'Produk berhasil dihapus dari keranjang.');
     }
 }

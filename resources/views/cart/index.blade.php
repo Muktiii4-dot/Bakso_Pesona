@@ -33,5 +33,208 @@
                 {{ session('error') }}
             </div>
         @endif
+
+        @if ($errors->any())
+            <div role="alert" class="mb-5 rounded-xl border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-800">
+                <p class="font-bold">Periksa kembali input kamu:</p>
+                <ul class="mt-2 list-inside list-disc">
+                    @foreach ($errors->all() as $error)
+                        <li>{{ $error }}</li>
+                    @endforeach
+                </ul>
+            </div>
+        @endif
+
+        @if ($items->isEmpty())
+            {{-- Keranjang kosong --}}
+            <div class="rounded-3xl border border-orange-100 bg-white px-5 py-14 text-center shadow-sm sm:py-20">
+                <div class="mx-auto flex h-20 w-20 items-center justify-center rounded-full bg-orange-50 text-[#B83B25]">
+                    <svg xmlns="http://ww.w3.org/2000/svg" class="h-10 w-10" fill="none"
+                        viewbox="0 0 24 24" stroke="currentColor" stroke-width="1.7">
+                        <path stroke-linecap="round" stroke-linejoin="round"
+                            d="M3 3h212.2 11.2a2 2 0 002 1.6h8.9a2 2 0 002-1.6L22 7H6" />
+                        <circle cx="10" cy="20" r="1" />
+                        <circle cx="18" cy="20" r="1" />
+                    </svg>
+                </div>
+
+                <h2 class="mt-6 text-xl font-extrabold text-[#74191B] sm:text-2xl">
+                    Keranjangmu masih kosong
+                </h2>
+
+                <p class="mx-auto mt-3 max-w-md text-sm leading-6 text-gray-500">
+                    Yuk, temukan bakso favoritmu dan tambakan ke keranjang.
+                </p>
+
+                <a href="{{ route('products.index') }}"
+                    class="mt-7 inline-flex items-center justify-center rounded-full bg-[#B83B25] px-6 py-3 text-sm font-bold text-white transition hover:bg-[#74191B] focus:outline-noen focus:ring-2 focus:ring-[#B83B25] focus:ring-offset-2">
+                    Lihat produk
+                </a>
+            </div>
+        @else
+            <div class="grid items-start gap-6 lg:grid-cols-[1fr_340px]">
+                {{-- Daftar produk --}}
+                <div class="space-y-4">
+                    @foreach ($items as $item)
+                        @php
+                            $product = $item['product'];
+                            $quantity = $item['quantity'];
+                            $subtotal = $item['subtotal'];
+                        @endphp
+
+                        <article wire:key="cart-product-{{ $product->id }}"
+                            class="rounded-2xl border border-orange-100 bg-white p-4 shadow-sm sm:p-5">
+                        
+                            <div class="flex gap-4 sm:gap-5">
+                                {{-- Gambar produk --}}
+                                <a href="{{ route('products.show', $product->slug) }}"
+                                    class="h-24 w-24 shrink-0 overflow-hidden rounded-xl bg-orange-50 sm:h-32 sm:w-32">
+                                    @if ($product->image)
+                                        <img src="{{ $product->image }}"
+                                            alt="{{ $product->name }}"
+                                            class="h-full w-full object-cover"
+                                            loading="lazy"
+                                            onerror="this.style.display='none'">
+                                    @else
+                                        <div class="flex h-full items-center justify-center px-2 text-center text-xs font-medium text-[#B83B25]">
+                                            Bakso Pesona
+                                        </div>
+                                    @endif
+                                </a>
+
+                                {{-- Informasi produk --}}
+                                <div class="min-w-0 flex-1">
+                                    <div class="flex flex-wrap items-start justify-between gap-2">
+                                        <div class="min-w-0">
+                                            <a href="{{  route('products.show', $product->slug) }}"
+                                                class="font-extrabold leading-5 text-[#74191B] transition hover:text-[#B83B25] sm:text-lg">
+                                                {{ $product->name }}
+                                            </a>
+
+                                            @if ($product->badge)
+                                                <span class="mt-2 inline-block rounded-full bg-orange-50 px-2.5 py-1 text-xs font-bold text-[#B83B25]">
+                                                    {{ $product->badge }}
+                                                </span>
+                                            @endif
+                                        </div>
+
+                                        <p class="whitespace-nowrap text-sm font-extrabold text-[#B83B25] sm:text-base">
+                                            Rp{{ number_format((float) $product->price, 0, ',', '.') }}
+                                        </p>
+                                    </div>
+
+                                    @if (!$product->is_available)
+                                        <p class="mt-2 text-xs font-semibold text-red-600">
+                                            Produk sedang tidak tersedia. Hapus dari keranjang untuk melanjutkan.
+                                        </p>
+                                    @endif
+
+                                    <div class="mt-4 flex flex-wrap items-center justify-between gap-3">
+                                        {{-- Form ubah jumlah --}}
+                                        @if ($product->is_available)
+                                            <form action="{{ route('cart.update', $product->id) }}"
+                                                method="POST"
+                                                class="flex items-center gap-2">
+                                                @csrf
+                                                @method('PATCH')
+
+                                                <lable for="quantity--{{ $product->id }}"
+                                                    class="text-xs font-medium text-gray-500">
+                                                    Jumlah
+                                                </lable>
+
+                                                <input id="quantity-{{ $product->id }}"
+                                                    type="number"
+                                                    name="quantity"
+                                                    min="1"
+                                                    max="99"
+                                                    required
+                                                    value="{{ $quantity }}"
+                                                    class="w-16 rounded-lg border border-orange-200 px-2 py-2 text-center text-sm font-bold text-[#74191B] focus:border-[#B83B25] focus:outline-none focus:ring-2 focus:ring-orange-100">
+
+                                                <button type="submit"
+                                                    class="rounded-lg border border-orange-200 px-3 py-2 text-xs font-bold text-[#74191B] transition hover:bg-orange-50">
+                                                    Perbarui
+                                                </button>
+                                            </form>
+                                        @else
+                                            <span class="text-xs text-gray-500">
+                                                Jumlah: {{ $quantity }}
+                                            </span>
+                                        @endif
+
+                                        {{-- Form hapus --}}
+                                        <form action="{{ route('cart.destroy', $product->id) }}"
+                                            method="POST"
+                                            onsubmit="return confirm('Hapus produk ini dari keranjang?')">
+                                            @csrf
+                                            @method('DELETE')
+
+                                            <button type="submit"
+                                                class="text-xs font-bold text-red-600 underline-offset-4 transition hover:underline">
+                                                Hapus
+                                            </button>
+                                        </form>
+                                    </div>
+
+                                    <div class="mt-4 border-t border-orange-50 pt-3 text-right">
+                                        <span class="text-xs text-gray-500">Subtotal Produk</span>
+                                        <p class="mt-1 font-extrabold text-[#74191B]">
+                                            Rp{{ number_format($subtotal, 0, ',', '.') }}
+                                        </p>
+                                    </div>
+                                </div>
+                            </div>
+                        </article>
+                    @endforeach
+
+                    <a href="{{ route('products.index') }}"
+                        class="inline-flex items-center gap-2 py-2 text-sm font-bold text-[#B83B25] transition hover:text-[#74191B]">
+                        <span aria-hidden="true">←</span>
+                        Lanjut Belanja
+                    </a>
+                </div>
+
+                {{-- Ringkasan belanja --}}
+                <aside class="rounded-2xl border border-orange-100 bg-white p-5 shadow-sm sm:p-6 lg:sticky lg:top-24">
+                    <h2 class="text-lg font-extrabold text-[#74191B]">Ringkasan Belanja</h2>
+
+                    <div class="mt-5 flex items-center justify-between gap-3 text-sm text-gray-600">
+                        <span>Jumlah jenis produk</span>
+                        <span class="font-bold text-gray-800">{{ $items->count() }} produk</span>
+                    </div>
+
+                    <div class="mt-3 flex items-center justify-between gap-3 text-sm text-gray-600">
+                        <span>Total unit</span>
+                        <span class="font-bold text-gray-800">{{ $items->sum('quantity') }} unit</span>
+                    </div>
+
+                    <div class="my-5 border-t border-dashed border-orange-200"></div>
+
+                    <div class="flex items-start justify-between gap-3">
+                        <span class="text-sm font-bold text-gray-700">Total sementar</span>
+                        <span class="text-right text-xl font-black text-[#B83B25]">
+                            Rp{{ number_format($total, 0, ',', '.') }}
+                        </span>
+                    </div>
+
+                    <p class="mt-3 text-xs leading-5 text-gray-500">
+                        Total ini belum termasuk ongkos kirim. Biaya pengiriman akan ditentukan pada tahap pemesanan.
+                    </p>
+
+                    <button type="button"
+                        disabled
+                        title="Fitur checkout akan dibuat pada bab berikutnya"
+                        class="mt-6 w-full cursor-not-allowed rounded-full bg-gray-300 px-5 py-3.5 text-sm font-extrabold text-gray-600">
+                        Checkout — Segera Hadir
+                    </button>
+
+                    <p class="mt-3 text-center text-xs leading-5 text-gray-500">
+                        Tahap ini baru mencakup keranjang belanja. Pemesanan belum dikirim ke admin.
+                    </p>
+                </aside>
+            </div>
+        @endif
     </div>
 </section>
+@endsection
