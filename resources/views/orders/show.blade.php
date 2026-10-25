@@ -301,6 +301,9 @@
                         <dt class="text-xs font-semibold text-gray-500">Alamat Lengkap</dt>
                         <dd class="mt-0.5 text-xs leading-5 text-gray-800 whitespace-pre-line font-medium">
                             {{ $order->shipping_address }}
+                            @if ($order->shipping_city || $order->shipping_province)
+                                {{ "\n" }}{{ $order->shipping_city }}{{ $order->shipping_province ? ', '.$order->shipping_province : '' }}{{ $order->shipping_postal_code ? ' '.$order->shipping_postal_code : '' }}
+                            @endif
                         </dd>
                     </div>
 

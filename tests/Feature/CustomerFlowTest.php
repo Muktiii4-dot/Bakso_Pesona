@@ -474,7 +474,10 @@ class CustomerFlowTest extends TestCase
             'checkout_token' => $checkoutToken,
             'recipient_name' => 'Pelanggan',
             'phone' => '08123456789',
-            'shipping_address' => 'Alamat pelanggan',
+            'shipping_address' => 'Jalan Pelanggan No. 1',
+            'shipping_province' => 'Jawa Barat',
+            'shipping_city' => 'Kabupaten Indramayu',
+            'shipping_postal_code' => '45200',
             'user_id' => $anotherCustomer->id,
             'subtotal' => 1,
         ];
@@ -486,8 +489,9 @@ class CustomerFlowTest extends TestCase
         $this->assertSame($customer->id, $order->user_id);
         $this->assertSame('50000.00', $order->subtotal);
         $this->assertSame('0.00', $order->discount_amount);
-        $this->assertNull($order->shipping_cost);
-        $this->assertNull($order->total_amount);
+        $this->assertSame('3000.00', $order->shipping_cost);
+        $this->assertSame('53000.00', $order->total_amount);
+        $this->assertSame('Jawa Barat', $order->shipping_province);
         $this->assertNull($order->payment_due_at);
         $this->assertSame(Order::PAYMENT_AWAITING_CONFIRMATION, $order->payment_status);
         $this->post(route('checkout.store'), $checkoutData)->assertRedirect(route('checkout.success', $order));
@@ -533,7 +537,10 @@ class CustomerFlowTest extends TestCase
             'checkout_token' => $checkoutPage->viewData('checkoutToken'),
             'recipient_name' => 'Pelanggan',
             'phone' => '08123456789',
-            'shipping_address' => 'Alamat pelanggan',
+            'shipping_address' => 'Jalan Pelanggan No. 1',
+            'shipping_province' => 'Jawa Barat',
+            'shipping_city' => 'Kabupaten Indramayu',
+            'shipping_postal_code' => '45200',
         ]);
 
         $response->assertSessionHasErrors('cart');

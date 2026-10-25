@@ -10,12 +10,12 @@
         </div>
         <p class="mt-5 text-center text-sm font-bold uppercase tracking-[0.2em] text-[#B83B25]">Bakso Pesona</p>
         <h1 class="mt-2 text-center text-3xl font-black text-[#74191B]">Pesanan berhasil dibuat!</h1>
-        <p class="mt-3 text-center text-sm leading-6 text-gray-600">Simpan nomor pesanan berikut. Admin akan menetapkan ongkir, menghitung total akhir, lalu mengirim instruksi pembayaran QRIS melalui WhatsApp.</p>
+        <p class="mt-3 text-center text-sm leading-6 text-gray-600">Simpan nomor pesanan berikut. Ongkir dan total dihitung otomatis. Kamu dapat menampilkan QRIS statis di bawah ini dan memasukkan nominal pembayaran secara manual. Pembayaran tetap perlu diverifikasi admin.</p>
 
         <div class="mt-8 rounded-2xl bg-orange-50 p-5 text-center">
             <p class="text-sm text-gray-600">Nomor pesanan</p>
             <p class="mt-1 break-all text-xl font-black text-[#74191B]">{{ $order->order_number }}</p>
-            <p class="mt-3 text-sm font-bold text-[#B83B25]">Menunggu konfirmasi admin</p>
+            <p class="mt-3 text-sm font-bold text-[#B83B25]">Menunggu instruksi pembayaran</p>
         </div>
 
         <div class="mt-6 space-y-3">
@@ -31,7 +31,73 @@
             <span class="font-bold text-gray-700">Subtotal produk</span>
             <span class="text-lg font-black text-[#B83B25]">Rp{{ number_format(\App\Models\Order::rupiahToInt($order->subtotal), 0, ',', '.') }}</span>
         </div>
-        <p class="mt-3 text-xs leading-5 text-gray-500">Ongkos kirim dan total akhir belum ditetapkan. Jangan melakukan pembayaran sebelum instruksi QRIS resmi dari admin diterima. Tenggat belum dimulai.</p>
+        <div class="mt-4 space-y-3 rounded-xl bg-orange-50 p-4">
+            <div class="flex justify-between gap-4 text-sm"><span class="text-gray-600">Provinsi tujuan</span><strong class="text-right">{{ $order->shipping_province }}</strong></div>
+            <div class="flex justify-between gap-4 text-sm"><span class="text-gray-600">Kota/kabupaten</span><strong class="text-right">{{ $order->shipping_city }}</strong></div>
+            @if ($order->shipping_cost !== null && $order->total_amount !== null)
+                <div class="flex justify-between gap-4 text-sm"><span class="text-gray-600">Ongkos kirim</span><strong>Rp{{ number_format(\App\Models\Order::rupiahToInt($order->shipping_cost), 0, ',', '.') }}</strong></div>
+                <div class="flex justify-between gap-4 border-t border-orange-200 pt-3"><span class="font-bold text-gray-700">Total pembayaran</span><strong class="text-lg font-black text-[#B83B25]">Rp{{ number_format(\App\Models\Order::rupiahToInt($order->total_amount), 0, ',', '.') }}</strong></div>
+            @else
+                <p class="text-sm text-amber-800">Pesanan lama ini belum memiliki total final. Admin akan meninjau ongkirnya sesuai alur sebelumnya.</p>
+            @endif
+        </div>
+        <p class="mt-3 text-xs leading-5 text-gray-500">Jangan menganggap pesanan telah dibayar sebelum pembayaran diverifikasi. QRIS ini bersifat statis, bukan QR dinamis dengan verifikasi otomatis.</p>
+
+        @php
+            $qrisImage = config('bakso_pesona.qris.image');
+            $qrisMerchant = config('bakso_pesona.qris.merchant_name');
+            $qrisAvailable = is_string($qrisImage)
+                && $qrisImage !== ''
+                && ! str_contains($qrisImage, '..')
+                && is_file(public_path($qrisImage))
+                && is_string($qrisMerchant)
+                && $qrisMerchant !== '';
+        @endphp
+
+        @if ($order->payment_method === 'qris' && $order->total_amount !== null && $qrisAvailable)
+            <div class="mt-6 rounded-2xl border border-orange-200 bg-orange-50 p-5 text-center" x-data="{}">
+                <p class="text-sm font-bold text-[#74191B]">Pembayaran QRIS</p>
+                <p class="mt-1 text-sm text-gray-600">{{ $qrisMerchant }}</p>
+                <button
+                    type="button"
+                    @click="$refs.qrisSuccessDialog.showModal()"
+                    class="mt-4 inline-flex w-full items-center justify-center rounded-full bg-[#B83B25] px-5 py-3 text-sm font-bold text-white transition hover:bg-[#74191B] focus:outline-none focus:ring-2 focus:ring-[#B83B25] focus:ring-offset-2 sm:w-auto"
+                >
+                    Tampilkan QRIS untuk membayar
+                </button>
+                <p class="mt-3 text-xs leading-5 text-gray-500">Masukkan nominal persis sesuai total pembayaran. Status pesanan tidak otomatis berubah setelah memindai QRIS.</p>
+
+                <dialog
+                    x-ref="qrisSuccessDialog"
+                    @click.self="$refs.qrisSuccessDialog.close()"
+                    aria-labelledby="qris-success-dialog-title"
+                    class="m-auto max-h-[90vh] w-[calc(100%-2rem)] max-w-lg overflow-y-auto rounded-2xl bg-white p-5 shadow-2xl backdrop:bg-black/70 sm:p-7"
+                >
+                    <div class="flex items-start justify-between gap-4">
+                        <div>
+                            <h2 id="qris-success-dialog-title" class="text-lg font-black text-[#74191B]">Bayar dengan QRIS Bakso Pesona</h2>
+                            <p class="mt-1 text-sm text-gray-600">Pastikan nama merchant yang muncul adalah {{ $qrisMerchant }}.</p>
+                        </div>
+                        <button type="button" @click="$refs.qrisSuccessDialog.close()" aria-label="Tutup QRIS" class="inline-flex h-9 w-9 shrink-0 items-center justify-center rounded-full text-2xl text-gray-500 hover:bg-gray-100">&times;</button>
+                    </div>
+                    <img src="{{ asset($qrisImage) }}" alt="Kode QRIS resmi {{ $qrisMerchant }}" class="mx-auto mt-5 max-h-[55vh] w-auto max-w-full rounded-lg object-contain">
+                    <div class="mt-5 rounded-xl bg-orange-50 p-4 text-center">
+                        <p class="text-xs font-semibold text-gray-600">Nominal yang harus dibayar</p>
+                        <p class="mt-1 text-2xl font-black text-[#B83B25]">Rp{{ number_format(\App\Models\Order::rupiahToInt($order->total_amount), 0, ',', '.') }}</p>
+                        <p class="mt-1 text-xs text-gray-500">Nomor pesanan: {{ $order->order_number }}</p>
+                    </div>
+                    <ol class="mt-4 list-decimal space-y-2 pl-5 text-left text-sm leading-5 text-gray-600">
+                        <li>Buka aplikasi pembayaran yang mendukung QRIS dan pindai kode di atas.</li>
+                        <li>Masukkan nominal persis seperti yang tertera, lalu periksa nama merchant sebelum membayar.</li>
+                        <li>Simpan bukti transaksi dan ikuti instruksi konfirmasi dari admin.</li>
+                    </ol>
+                    <p class="mt-4 rounded-xl border border-amber-200 bg-amber-50 p-3 text-xs leading-5 text-amber-900">QRIS ini statis. Sistem belum memverifikasi pembayaran secara otomatis; pesanan baru dianggap lunas setelah admin mencocokkan transaksi.</p>
+                    <button type="button" @click="$refs.qrisSuccessDialog.close()" class="mt-5 w-full rounded-full border border-orange-200 px-5 py-3 text-sm font-bold text-[#74191B] hover:bg-orange-50">Tutup</button>
+                </dialog>
+            </div>
+        @elseif ($order->payment_method === 'qris' && $order->total_amount !== null)
+            <p class="mt-5 rounded-xl border border-amber-200 bg-amber-50 p-4 text-sm text-amber-900">Gambar QRIS belum tersedia. Silakan hubungi admin melalui kontak resmi sebelum melakukan pembayaran.</p>
+        @endif
 
         <div class="mt-8 flex flex-col gap-3 sm:flex-row">
             <a href="{{ route('products.index') }}" class="inline-flex flex-1 justify-center rounded-full bg-[#B83B25] px-5 py-3 text-sm font-bold text-white transition hover:bg-[#74191B]">Lanjut belanja</a>

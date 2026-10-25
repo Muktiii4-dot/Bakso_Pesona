@@ -85,6 +85,9 @@ class CheckoutController extends Controller
             'items' => collect($items),
             'subtotal' => $subtotal,
             'checkoutToken' => $token,
+            'provinces' => config('shipping.provinces', []),
+            'javaProvinces' => config('shipping.java_provinces', []),
+            'shippingRates' => config('shipping.rates', ['java' => 3000, 'outside_java' => 5000]),
         ]);
     }
 
@@ -94,6 +97,9 @@ class CheckoutController extends Controller
             'checkout_token' => ['required', 'uuid'],
             'recipient_name' => ['required', 'string', 'max:255'],
             'phone' => ['required', 'string', 'max:30', 'regex:/^\+?[0-9][0-9\s().-]{7,29}$/'],
+            'shipping_province' => ['required', 'string', 'max:100', 'in:'.implode(',', config('shipping.provinces', []))],
+            'shipping_city' => ['required', 'string', 'max:150'],
+            'shipping_postal_code' => ['required', 'string', 'regex:/^[0-9]{5}$/'],
             'shipping_address' => ['required', 'string', 'max:2000'],
             'delivery_landmark' => ['nullable', 'string', 'max:1000'],
             'customer_note' => ['nullable', 'string', 'max:1000'],
@@ -103,6 +109,11 @@ class CheckoutController extends Controller
             'phone.required' => 'Nomor HP wajib diisi.',
             'phone.regex' => 'Format nomor HP/WhatsApp tidak valid.',
             'shipping_address.required' => 'Alamat lengkap wajib diisi.',
+            'shipping_province.required' => 'Provinsi wajib dipilih.',
+            'shipping_province.in' => 'Provinsi tujuan tidak valid. Pilih dari daftar yang tersedia.',
+            'shipping_city.required' => 'Kota/kabupaten wajib diisi.',
+            'shipping_postal_code.required' => 'Kode pos wajib diisi.',
+            'shipping_postal_code.regex' => 'Kode pos harus terdiri dari 5 angka.',
         ]);
 
         $customer = $request->user('customer');
@@ -187,12 +198,19 @@ class CheckoutController extends Controller
                 'recipient_name' => $validated['recipient_name'],
                 'phone' => $validated['phone'],
                 'shipping_address' => $validated['shipping_address'],
+                'shipping_province' => $validated['shipping_province'],
+                'shipping_city' => $validated['shipping_city'],
+                'shipping_postal_code' => $validated['shipping_postal_code'],
                 'delivery_landmark' => $validated['delivery_landmark'] ?? null,
                 'customer_note' => $validated['customer_note'] ?? null,
                 'subtotal' => $subtotal,
                 'discount_amount' => 0,
-                'shipping_cost' => null,
-                'total_amount' => null,
+                'shipping_cost' => in_array($validated['shipping_province'], config('shipping.java_provinces', []), true)
+                    ? config('shipping.rates.java', 3000)
+                    : config('shipping.rates.outside_java', 5000),
+                'total_amount' => $subtotal - 0 + (in_array($validated['shipping_province'], config('shipping.java_provinces', []), true)
+                    ? config('shipping.rates.java', 3000)
+                    : config('shipping.rates.outside_java', 5000)),
                 'status' => Order::STATUS_PENDING_CONFIRMATION,
                 'payment_method' => 'qris',
                 'payment_status' => Order::PAYMENT_AWAITING_CONFIRMATION,
@@ -202,7 +220,7 @@ class CheckoutController extends Controller
             $order->recordEvent(
                 'checkout_created',
                 $customer,
-                newValues: ['status' => $order->status, 'subtotal' => $subtotal],
+                newValues: ['status' => $order->status, 'subtotal' => $subtotal, 'shipping_cost' => $order->shipping_cost, 'total_amount' => $order->total_amount, 'shipping_province' => $order->shipping_province],
             );
 
             foreach ($cart as $productId => $quantity) {
@@ -259,7 +277,7 @@ class CheckoutController extends Controller
 
         return redirect()->route('checkout.success', $order)->with(
             'success',
-            'Pesanan berhasil dibuat. Admin akan menetapkan ongkir dan mengirim instruksi pembayaran.'
+            'Pesanan berhasil dibuat. Ongkir dan total akhir sudah dihitung otomatis. Tunggu instruksi pembayaran QRIS resmi dari admin.'
         );
     }
 

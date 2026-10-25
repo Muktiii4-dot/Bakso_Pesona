@@ -118,6 +118,9 @@
                         <p class="text-xs font-medium text-gray-400 uppercase tracking-wider">Alamat Pengiriman</p>
                         <p class="mt-0.5 whitespace-pre-line text-gray-700 leading-relaxed bg-gray-50 rounded-xl p-3 border border-gray-100">
                             {{ $order->shipping_address }}
+                            @if ($order->shipping_city || $order->shipping_province)
+                                {{ "\n" }}{{ $order->shipping_city }}{{ $order->shipping_province ? ', '.$order->shipping_province : '' }}{{ $order->shipping_postal_code ? ' '.$order->shipping_postal_code : '' }}
+                            @endif
                         </p>
                     </div>
 
@@ -140,7 +143,7 @@
             <section class="rounded-2xl border border-orange-200 bg-white p-5 shadow-sm space-y-4">
                 <h2 class="text-base font-bold text-pesona-dark border-b border-gray-100 pb-3">Aksi Admin</h2>
 
-                @if ($order->status === \App\Models\Order::STATUS_PENDING_CONFIRMATION && !in_array($order->payment_status, [\App\Models\Order::PAYMENT_UNDER_VERIFICATION, \App\Models\Order::PAYMENT_PAID, \App\Models\Order::PAYMENT_REFUNDED], true) && ! $order->payment_review_required && ! ($order->payment_due_at && $order->payment_due_at->isPast()))
+                @if ($order->shipping_cost === null && $order->status === \App\Models\Order::STATUS_PENDING_CONFIRMATION && !in_array($order->payment_status, [\App\Models\Order::PAYMENT_UNDER_VERIFICATION, \App\Models\Order::PAYMENT_PAID, \App\Models\Order::PAYMENT_REFUNDED], true) && ! $order->payment_review_required && ! ($order->payment_due_at && $order->payment_due_at->isPast()))
                     <div class="rounded-xl border border-amber-200 bg-amber-50/60 p-4">
                         <p class="text-xs font-bold uppercase tracking-wider text-amber-800">Tetapkan Ongkir</p>
                         <form action="{{ route('admin.orders.confirm-shipping', $order) }}" method="POST" class="mt-3 space-y-3">

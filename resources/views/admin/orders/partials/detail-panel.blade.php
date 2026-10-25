@@ -44,7 +44,7 @@
         </div>
         <div>
             <span class="text-gray-400">Alamat pengiriman</span>
-            <p class="mt-1 whitespace-pre-line rounded-lg border border-gray-100 bg-white p-2.5 font-medium leading-relaxed text-gray-800">{{ $order->shipping_address }}</p>
+            <p class="mt-1 whitespace-pre-line rounded-lg border border-gray-100 bg-white p-2.5 font-medium leading-relaxed text-gray-800">{{ $order->shipping_address }}@if ($order->shipping_city || $order->shipping_province){{ "\n" }}{{ $order->shipping_city }}{{ $order->shipping_province ? ', '.$order->shipping_province : '' }}{{ $order->shipping_postal_code ? ' '.$order->shipping_postal_code : '' }}@endif</p>
         </div>
         @if ($order->delivery_landmark)
             <div>
