@@ -53,6 +53,34 @@ class AdminOrderTest extends TestCase
         ], $attributes));
     }
 
+    public function test_admin_login_normalizes_email_case_and_surrounding_spaces(): void
+    {
+        $this->admin->update(['email' => 'admin.normalized@example.com']);
+
+        $response = $this->post(route('admin.login.store'), [
+            'email' => ' ADMIN.NORMALIZED@EXAMPLE.COM ',
+            'password' => 'password',
+        ]);
+
+        $response->assertRedirect(route('admin.dashboard'));
+        $this->assertAuthenticatedAs($this->admin, 'admin');
+    }
+
+    public function test_admin_can_view_customer_management_page(): void
+    {
+        User::factory()->create([
+            'name' => 'Pelanggan Demo',
+            'email' => 'pelanggan.demo@example.com',
+            'role' => 'customer',
+        ]);
+
+        $response = $this->actingAs($this->admin, 'admin')->get(route('admin.customers.index'));
+
+        $response->assertOk();
+        $response->assertSee('Manajemen Pelanggan');
+        $response->assertSee('Pelanggan Demo');
+    }
+
     public function test_guest_cannot_access_admin_orders(): void
     {
         $response = $this->get('/admin/pesanan');

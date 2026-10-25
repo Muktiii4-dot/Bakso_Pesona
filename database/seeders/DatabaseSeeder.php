@@ -22,6 +22,13 @@ class DatabaseSeeder extends Seeder
             ProductSeeder::class,
         ]);
 
+        // Admin dibuat hanya jika kredensial resmi sudah dikonfigurasi di .env.
+        // Tidak membuat password default yang berisiko dipakai di produksi.
+        if (filled(config('bakso_pesona.admin_seed.email'))
+            && filled(config('bakso_pesona.admin_seed.password'))) {
+            $this->call(AdminUserSeeder::class);
+        }
+
         User::factory()->create([
             'name' => 'Test User',
             'email' => 'test@example.com',

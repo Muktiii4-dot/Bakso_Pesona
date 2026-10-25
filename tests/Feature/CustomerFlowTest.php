@@ -15,6 +15,23 @@ class CustomerFlowTest extends TestCase
 {
     use RefreshDatabase;
 
+    public function test_customer_login_normalizes_email_case_and_surrounding_spaces(): void
+    {
+        $customer = User::factory()->create([
+            'email' => 'normalized.customer@example.com',
+            'password' => bcrypt('customer-secret'),
+            'role' => 'customer',
+        ]);
+
+        $response = $this->post(route('login.store'), [
+            'email' => '  NORMALIZED.CUSTOMER@EXAMPLE.COM  ',
+            'password' => 'customer-secret',
+        ]);
+
+        $response->assertRedirect(route('home'));
+        $this->assertAuthenticatedAs($customer, 'customer');
+    }
+
     public function test_customer_can_view_home_and_products(): void
     {
         $category = Category::create([

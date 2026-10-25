@@ -4,6 +4,7 @@ use App\Http\Controllers\AccountController;
 use App\Http\Controllers\Admin\AuditController;
 use App\Http\Controllers\Admin\AuthController as AdminAuthController;
 use App\Http\Controllers\Admin\CategoryController as AdminCategoryController;
+use App\Http\Controllers\Admin\CustomerController as AdminCustomerController;
 use App\Http\Controllers\Admin\DashboardController;
 use App\Http\Controllers\Admin\OrderController;
 use App\Http\Controllers\Admin\OrderRatingController;
@@ -139,6 +140,9 @@ Route::middleware(['auth:admin', 'admin'])
 
         Route::get('/audit', [AuditController::class, 'index'])
             ->name('audit.index');
+
+        Route::get('/pelanggan', [AdminCustomerController::class, 'index'])
+            ->name('customers.index');
 
         // ─── Manajemen Pesanan ───────────────────────────────────────────────
         Route::get('/pesanan', [OrderController::class, 'index'])

@@ -52,4 +52,4 @@
 <?php unset($__componentOriginal8a8716efb3c62a45938aca52e78e0322); ?>
 <?php endif; ?>
 </body>
-<?php /**PATH C:\Users\pc1\Downloads\Bakso_Pesona\resources\views/layouts/app.blade.php ENDPATH**/ ?>
+<?php /**PATH C:\Users\pc1\Documents\Bakso_Pesona\resources\views/layouts/app.blade.php ENDPATH**/ ?>

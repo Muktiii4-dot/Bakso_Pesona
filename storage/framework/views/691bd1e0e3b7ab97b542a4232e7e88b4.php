@@ -112,4 +112,4 @@ unset($__defined_vars, $__key, $__value); ?>
             </a>
         </div>
     </div>
-</article><?php /**PATH C:\Users\pc1\Downloads\Bakso_Pesona\resources\views/components/product-card.blade.php ENDPATH**/ ?>
+</article><?php /**PATH C:\Users\pc1\Documents\Bakso_Pesona\resources\views/components/product-card.blade.php ENDPATH**/ ?>

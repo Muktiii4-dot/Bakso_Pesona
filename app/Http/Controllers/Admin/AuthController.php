@@ -31,13 +31,16 @@ class AuthController extends Controller
         }
 
         $credentials = $request->validate([
-            'email' => ['required', 'email'],
+            'email' => ['required', 'string', 'email', 'max:255'],
             'password' => ['required', 'string'],
         ], [
             'email.required' => 'Email administrator wajib diisi.',
             'email.email' => 'Format email tidak valid.',
             'password.required' => 'Password wajib diisi.',
         ]);
+
+        // Normalisasi email agar spasi di awal/akhir dan kapitalisasi tidak menggagalkan login.
+        $credentials['email'] = strtolower(trim($credentials['email']));
 
         if (! Auth::guard('admin')->attempt($credentials + ['role' => 'admin'], $request->boolean('remember'))) {
             throw ValidationException::withMessages([

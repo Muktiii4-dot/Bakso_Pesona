@@ -275,4 +275,4 @@
         </div>
     </div>
 
-</footer><?php /**PATH C:\Users\pc1\Downloads\Bakso_Pesona\resources\views/components/footer.blade.php ENDPATH**/ ?>
+</footer><?php /**PATH C:\Users\pc1\Documents\Bakso_Pesona\resources\views/components/footer.blade.php ENDPATH**/ ?>

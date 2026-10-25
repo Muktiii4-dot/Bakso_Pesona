@@ -105,4 +105,4 @@
         Buka detail & tindakan pesanan
     </a>
 </div>
-<?php /**PATH C:\Users\pc1\Downloads\Bakso_Pesona\resources\views/admin/orders/partials/detail-panel.blade.php ENDPATH**/ ?>
+<?php /**PATH C:\Users\pc1\Documents\Bakso_Pesona\resources\views/admin/orders/partials/detail-panel.blade.php ENDPATH**/ ?>

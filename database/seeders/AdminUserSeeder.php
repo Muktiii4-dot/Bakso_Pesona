@@ -15,7 +15,7 @@ class AdminUserSeeder extends Seeder
      */
     public function run(): void
     {
-        $email = config('bakso_pesona.admin_seed.email');
+        $email = strtolower(trim((string) config('bakso_pesona.admin_seed.email')));
         $password = config('bakso_pesona.admin_seed.password');
 
         if (! is_string($email) || trim($email) === '' || ! is_string($password) || $password === '') {

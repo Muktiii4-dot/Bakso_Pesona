@@ -41,7 +41,7 @@ class AuthController extends Controller
 
         $user = User::create([
             'name' => $validated['name'],
-            'email' => $validated['email'],
+            'email' => strtolower(trim($validated['email'])),
             'password' => Hash::make($validated['password']),
         ]);
 
@@ -69,13 +69,16 @@ class AuthController extends Controller
         }
 
         $credentials = $request->validate([
-            'email' => ['required', 'email'],
+            'email' => ['required', 'string', 'email', 'max:255'],
             'password' => ['required', 'string'],
         ], [
             'email.required' => 'Email wajib diisi.',
             'email.email' => 'Format email tidak valid.',
             'password.required' => 'Password wajib diisi.',
         ]);
+
+        // Normalisasi email agar spasi di awal/akhir dan kapitalisasi tidak menggagalkan login.
+        $credentials['email'] = strtolower(trim($credentials['email']));
 
         if (! Auth::guard('customer')->attempt($credentials + ['role' => 'customer'], $request->boolean('remember'))) {
             throw ValidationException::withMessages([
