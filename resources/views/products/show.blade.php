@@ -234,6 +234,38 @@
 
         </div>
 
+        <section class="mt-10 rounded-3xl border border-orange-100 bg-white p-6 shadow-sm sm:p-8" aria-labelledby="product-ratings-title">
+            <div class="flex flex-wrap items-end justify-between gap-3">
+                <div>
+                    <p class="text-xs font-bold uppercase tracking-[0.18em] text-pesona-orange">Cerita Pelanggan</p>
+                    <h2 id="product-ratings-title" class="mt-1 text-2xl font-black text-pesona-dark">Rating & Ulasan</h2>
+                </div>
+                @if ($averageRating !== null)
+                    <p class="text-sm font-bold text-amber-700">{{ number_format($averageRating, 1) }} / 5 ★</p>
+                @endif
+            </div>
+
+            @if ($ratings->isEmpty())
+                <p class="mt-5 text-sm text-gray-500">Belum ada ulasan yang disetujui untuk produk ini.</p>
+            @else
+                <div class="mt-5 divide-y divide-orange-100">
+                    @foreach ($ratings as $rating)
+                        <article class="py-4 first:pt-0 last:pb-0">
+                            <div class="flex flex-wrap items-center justify-between gap-2">
+                                <p class="font-bold text-gray-900">Pelanggan Bakso Pesona</p>
+                                <p class="text-sm font-bold text-amber-700">{{ $rating->rating }} / 5 ★</p>
+                            </div>
+                            @if ($rating->original_comment || $rating->edited_comment)
+                                <p class="mt-2 whitespace-pre-line text-sm leading-6 text-gray-700">{{ $rating->edited_comment ?? $rating->original_comment }}</p>
+                            @endif
+                            <p class="mt-2 text-xs text-gray-400">{{ $rating->created_at->format('d M Y') }}</p>
+                        </article>
+                    @endforeach
+                </div>
+                <div class="mt-5">{{ $ratings->links() }}</div>
+            @endif
+        </section>
+
     </div>
 
 </section>

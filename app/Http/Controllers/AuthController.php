@@ -12,8 +12,8 @@ class AuthController extends Controller
 {
     public function showRegister()
     {
-        if (Auth::check()) {
-            return redirect()->route('home');
+        if (Auth::guard('customer')->check()) {
+            return $this->authenticatedRedirect();
         }
 
         return view('auth.register');
@@ -21,8 +21,8 @@ class AuthController extends Controller
 
     public function register(Request $request)
     {
-        if (Auth::check()) {
-            return redirect()->route('home');
+        if (Auth::guard('customer')->check()) {
+            return $this->authenticatedRedirect();
         }
 
         $validated = $request->validate([
@@ -45,18 +45,18 @@ class AuthController extends Controller
             'password' => Hash::make($validated['password']),
         ]);
 
-        Auth::login($user);
+        Auth::guard('customer')->login($user);
         $request->session()->regenerate();
 
         return redirect()
-            ->intended(route('home'))
+            ->route('home')
             ->with('success', 'Akun berhasil dibuat. Selamat datang di Bakso Pesona!');
     }
 
     public function showLogin()
     {
-        if (Auth::check()) {
-            return redirect()->route('home');
+        if (Auth::guard('customer')->check()) {
+            return $this->authenticatedRedirect();
         }
 
         return view('auth.login');
@@ -64,8 +64,8 @@ class AuthController extends Controller
 
     public function login(Request $request)
     {
-        if (Auth::check()) {
-            return redirect()->route('home');
+        if (Auth::guard('customer')->check()) {
+            return $this->authenticatedRedirect();
         }
 
         $credentials = $request->validate([
@@ -77,7 +77,7 @@ class AuthController extends Controller
             'password.required' => 'Password wajib diisi.',
         ]);
 
-        if (!Auth::attempt($credentials, $request->boolean('remember'))) {
+        if (! Auth::guard('customer')->attempt($credentials + ['role' => 'customer'], $request->boolean('remember'))) {
             throw ValidationException::withMessages([
                 'email' => 'Email atau password yang kamu masukkan salah.',
             ]);
@@ -86,20 +86,23 @@ class AuthController extends Controller
         $request->session()->regenerate();
 
         return redirect()
-            ->intended(route('home'))
+            ->route('home')
             ->with('success', 'Berhasil login. Selamat datang kembali!');
     }
 
     public function logout(Request $request)
     {
-        Auth::logout();
+        Auth::guard('customer')->logout();
 
-        $request->session()->invalidate();
-        $request->session()->regenerateToken();
+        $request->session()->regenerate();
 
         return redirect()
             ->route('home')
             ->with('success', 'Kamu berhasil logout.');
     }
-    
+
+    private function authenticatedRedirect()
+    {
+        return redirect()->route('account.profile');
+    }
 }

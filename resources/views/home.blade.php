@@ -4,6 +4,33 @@
 
 @section('content')
 
+@if (session('cart_success'))
+    <div
+        x-data="{ visible: true }"
+        x-show="visible"
+        x-transition:enter="transition ease-out duration-200"
+        x-transition:enter-start="translate-y-2 opacity-0"
+        x-transition:enter-end="translate-y-0 opacity-100"
+        x-transition:leave="transition ease-in duration-150"
+        x-transition:leave-start="opacity-100"
+        x-transition:leave-end="translate-y-2 opacity-0"
+        x-init="window.setTimeout(() => visible = false, 5000)"
+        role="status"
+        aria-live="polite"
+        class="fixed right-4 top-24 z-[70] flex w-[calc(100%-2rem)] max-w-md items-start gap-3 rounded-2xl border border-green-200 bg-white p-4 text-[#351B18] shadow-xl sm:right-6"
+    >
+        <span class="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-green-100 text-green-700" aria-hidden="true">
+            <svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path d="m5 12 4 4L19 6" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+            </svg>
+        </span>
+        <p class="flex-1 pt-1 text-sm font-bold">{{ session('cart_success') }}</p>
+        <button type="button" @click="visible = false" class="rounded-lg p-1 text-gray-400 hover:bg-gray-100 hover:text-gray-700" aria-label="Tutup pemberitahuan">
+            <span aria-hidden="true">&times;</span>
+        </button>
+    </div>
+@endif
+
 {{-- HERO --}}
 <section id="beranda" class="relative isolate overflow-hidden bg-[#74191B] text-white">
     <div class="pointer-events-none absolute -left-20 top-20 h-64 w-64 rounded-full bg-[#E87532]/30 blur-3xl"></div>
@@ -68,9 +95,10 @@
         </div>
     </div>
 
-    <svg class="absolute bottom-0 left-0 h-9 w-full text-[#FFF8F1] sm:h-14"
+    <svg data-testid="home-red-wave" class="absolute bottom-0 left-0 h-9 w-full text-[#FFF8F1] sm:h-14"
             viewBox="0 0 1440 90" preserveAspectRatio="none" aria-hidden="true">
         <path fill="currentColor" d="M0,42 C180,95 330,76 500,48 C690,14 790,85 970,58 C1140,32 1270,25 1440,45 L1440,90 L0,90 Z"></path>
+        <path fill="#B83B25" d="M0,36 C180,89 330,70 500,42 C690,8 790,79 970,52 C1140,26 1270,19 1440,39 L1440,47 C1270,27 1140,34 970,60 C790,87 690,16 500,50 C330,78 180,97 0,44 Z"></path>
     </svg>
 </section>
 

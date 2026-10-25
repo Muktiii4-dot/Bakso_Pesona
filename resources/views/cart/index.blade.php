@@ -6,6 +6,12 @@
 <section class="min-h-[70vh] bg-[#FFF9F3] px-4 py-10 sm:px-6 sm:py-14 lg:px-8">
     <div class="mx-auto max-w-7xl">
 
+        <a href="{{ route('home') }}"
+            class="mb-6 inline-flex items-center gap-2 rounded-full border border-orange-200 bg-white px-4 py-2.5 text-sm font-bold text-[#74191B] transition hover:border-[#B83B25] hover:bg-orange-50 focus:outline-none focus:ring-2 focus:ring-[#B83B25] focus:ring-offset-2">
+            <span aria-hidden="true">&larr;</span>
+            Kembali ke Beranda
+        </a>
+
         {{-- Header --}}
         <div class="mb-8">
             <p class="text-sm font-bold uppercase tracking-[0.2em] text-[#B83B25]">
@@ -130,7 +136,7 @@
                                     @endif
 
                                     <div class="mt-4 flex flex-wrap items-center justify-between gap-3">
-                                        {{-- Form ubah jumlah --}}
+                                        {{-- Kontrol jumlah --}}
                                         @if ($product->is_available)
                                             <form action="{{ route('cart.update', $product->id) }}"
                                                 method="POST"
@@ -138,24 +144,33 @@
                                                 @csrf
                                                 @method('PATCH')
 
-                                                <lable for="quantity--{{ $product->id }}"
+                                                <span
                                                     class="text-xs font-medium text-gray-500">
                                                     Jumlah
-                                                </lable>
+                                                </span>
 
-                                                <input id="quantity-{{ $product->id }}"
-                                                    type="number"
+                                                <button
+                                                    type="submit"
                                                     name="quantity"
-                                                    min="1"
-                                                    max="99"
-                                                    required
-                                                    value="{{ $quantity }}"
-                                                    class="w-16 rounded-lg border border-orange-200 px-2 py-2 text-center text-sm font-bold text-[#74191B] focus:border-[#B83B25] focus:outline-none focus:ring-2 focus:ring-orange-100">
+                                                    value="{{ max(1, $quantity - 1) }}"
+                                                    @disabled($quantity <= 1)
+                                                    aria-label="Kurangi jumlah {{ $product->name }}"
+                                                    class="flex h-9 w-9 items-center justify-center rounded-full border border-orange-200 text-lg font-bold text-[#74191B] transition hover:bg-orange-50 disabled:cursor-not-allowed disabled:opacity-40"
+                                                >&minus;</button>
 
-                                                <button type="submit"
-                                                    class="rounded-lg border border-orange-200 px-3 py-2 text-xs font-bold text-[#74191B] transition hover:bg-orange-50">
-                                                    Perbarui
-                                                </button>
+                                                <span
+                                                    class="min-w-8 text-center text-sm font-extrabold text-[#74191B]"
+                                                    aria-live="polite"
+                                                >{{ $quantity }}</span>
+
+                                                <button
+                                                    type="submit"
+                                                    name="quantity"
+                                                    value="{{ min(99, (int) $product->stock, $quantity + 1) }}"
+                                                    @disabled($quantity >= min(99, (int) $product->stock))
+                                                    aria-label="Tambah jumlah {{ $product->name }}"
+                                                    class="flex h-9 w-9 items-center justify-center rounded-full border border-orange-200 text-lg font-bold text-[#74191B] transition hover:bg-orange-50 disabled:cursor-not-allowed disabled:opacity-40"
+                                                >&plus;</button>
                                             </form>
                                         @else
                                             <span class="text-xs text-gray-500">
@@ -222,15 +237,13 @@
                         Total ini belum termasuk ongkos kirim. Biaya pengiriman akan ditentukan pada tahap pemesanan.
                     </p>
 
-                    <button type="button"
-                        disabled
-                        title="Fitur checkout akan dibuat pada bab berikutnya"
-                        class="mt-6 w-full cursor-not-allowed rounded-full bg-gray-300 px-5 py-3.5 text-sm font-extrabold text-gray-600">
-                        Checkout — Segera Hadir
-                    </button>
+                    <a href="{{ route('checkout.create') }}"
+                        class="mt-6 flex w-full items-center justify-center rounded-full bg-[#B83B25] px-5 py-3.5 text-sm font-extrabold text-white transition hover:bg-[#74191B] focus:outline-none focus:ring-2 focus:ring-[#B83B25] focus:ring-offset-2">
+                        Lanjut ke Checkout
+                    </a>
 
                     <p class="mt-3 text-center text-xs leading-5 text-gray-500">
-                        Tahap ini baru mencakup keranjang belanja. Pemesanan belum dikirim ke admin.
+                        Ongkos kirim dan instruksi pembayaran akan dikonfirmasi admin setelah pesanan diterima.
                     </p>
                 </aside>
             </div>

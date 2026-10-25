@@ -168,8 +168,17 @@
 
                 <div class="mt-5 space-y-5 text-sm text-white/75">
 
+                    @php
+                        $officialWhatsapp = preg_replace('/\D/', '', (string) config('bakso_pesona.whatsapp_number'));
+                        if (str_starts_with($officialWhatsapp, '0')) {
+                            $officialWhatsapp = '62'.substr($officialWhatsapp, 1);
+                        } elseif (str_starts_with($officialWhatsapp, '8')) {
+                            $officialWhatsapp = '62'.$officialWhatsapp;
+                        }
+                    @endphp
+                    @if (strlen($officialWhatsapp) >= 10 && strlen($officialWhatsapp) <= 15)
                     <a
-                        href="https://wa.me/6287823284676"
+                        href="https://wa.me/{{ $officialWhatsapp }}"
                         target="_blank"
                         rel="noopener noreferrer"
                         class="group flex items-start gap-3 transition hover:text-[#FFB45E]"
@@ -189,13 +198,20 @@
                         <span class="break-words">
                             WhatsApp<br>
                             <span class="mt-1 inline-block text-white">
-                                +62 878-2328-4676
+                                +{{ $officialWhatsapp }}
                             </span>
                         </span>
                     </a>
+                    @else
+                    <div class="flex items-start gap-3 text-white/60">
+                        <span class="text-[#FFB45E]">WhatsApp</span>
+                        <span>Kontak resmi belum dikonfigurasi.</span>
+                    </div>
+                    @endif
 
+                    @if (config('bakso_pesona.contact_email'))
                     <a
-                        href="mailto:hello@baksopesona.id"
+                        href="mailto:{{ config('bakso_pesona.contact_email') }}"
                         class="group flex items-start gap-3 transition hover:text-[#FFB45E]"
                     >
                         <svg class="mt-0.5 h-5 w-5 shrink-0 text-[#FFB45E]"
@@ -210,9 +226,10 @@
                         </svg>
 
                         <span class="break-all">
-                            hello@baksopesona.id
+                            {{ config('bakso_pesona.contact_email') }}
                         </span>
                     </a>
+                    @endif
 
                     <div class="flex items-start gap-3">
                         <svg class="mt-0.5 h-5 w-5 shrink-0 text-[#FFB45E]"

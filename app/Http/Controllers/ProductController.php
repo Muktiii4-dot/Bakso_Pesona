@@ -3,6 +3,8 @@
 namespace App\Http\Controllers;
 
 use App\Models\Category;
+use App\Models\Order;
+use App\Models\OrderRating;
 use App\Models\Product;
 use Illuminate\Http\Request;
 
@@ -20,7 +22,7 @@ class ProductController extends Controller
             'slug' => $product->slug,
             'category' => $product->category?->name ?? 'Lainnya',
             'description' => $product->description,
-            'price' => (float) $product->price,
+            'price' => Order::rupiahToInt($product->price),
             'image' => $product->image,
             'badge' => $product->badge,
             'is_available' => $product->is_available,
@@ -97,9 +99,19 @@ class ProductController extends Controller
             ->with('category')
             ->where('slug', $slug)
             ->firstOrFail();
+        $ratingsQuery = OrderRating::query()
+            ->where('moderation_status', 'approved')
+            ->whereHas('order.items', fn ($query) => $query->where('product_id', $product->id));
+        $averageRating = (clone $ratingsQuery)->avg('rating');
+        $ratings = $ratingsQuery
+            ->with('customer')
+            ->latest()
+            ->paginate(5);
 
         return view('products.show', [
             'product' => $this->formatProduct($product),
+            'ratings' => $ratings,
+            'averageRating' => $averageRating,
         ]);
     }
 }
