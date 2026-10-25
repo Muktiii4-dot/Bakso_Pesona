@@ -7,6 +7,7 @@ use App\Models\Order;
 use App\Models\OrderCancellationRequest;
 use App\Models\OrderRefund;
 use App\Models\User;
+use Carbon\CarbonImmutable;
 use Illuminate\Contracts\View\View;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
@@ -29,6 +30,8 @@ class OrderController extends Controller
                 'ready_to_pack',
             ])],
             'search' => ['nullable', 'string', 'max:255'],
+            'date_from' => ['nullable', 'date'],
+            'date_to' => ['nullable', 'date', 'after_or_equal:date_from'],
             'sort' => ['nullable', Rule::in(['latest', 'oldest', 'total_high', 'total_low'])],
             'selected' => ['nullable', 'integer', 'min:1'],
         ]);
@@ -40,6 +43,21 @@ class OrderController extends Controller
             })
             ->when($request->filled('payment_status'), function ($query) use ($request) {
                 $query->where('payment_status', $request->input('payment_status'));
+            })
+            ->when($request->filled('date_from'), function ($query) use ($request) {
+                $start = CarbonImmutable::parse($request->input('date_from'), 'Asia/Jakarta')
+                    ->startOfDay()
+                    ->utc();
+
+                $query->where('created_at', '>=', $start);
+            })
+            ->when($request->filled('date_to'), function ($query) use ($request) {
+                $end = CarbonImmutable::parse($request->input('date_to'), 'Asia/Jakarta')
+                    ->addDay()
+                    ->startOfDay()
+                    ->utc();
+
+                $query->where('created_at', '<', $end);
             })
             ->when($request->filled('attention'), function ($query) use ($request) {
                 match ($request->input('attention')) {
@@ -111,6 +129,50 @@ class OrderController extends Controller
 
         $statusLabels = Order::statusLabels();
         $paymentStatusLabels = Order::paymentStatusLabels();
+        $totalOrders = Order::count();
+        $ordersRequiringAction = Order::query()
+            ->where(function ($query) {
+                $query
+                    ->where(function ($shippingQuery) {
+                        $shippingQuery
+                            ->where('status', Order::STATUS_PENDING_CONFIRMATION)
+                            ->whereNull('shipping_cost');
+                    })
+                    ->orWhere(function ($instructionQuery) {
+                        $instructionQuery
+                            ->where('status', Order::STATUS_PENDING_CONFIRMATION)
+                            ->whereNotNull('total_amount')
+                            ->whereIn('payment_status', [
+                                Order::PAYMENT_AWAITING_CONFIRMATION,
+                                Order::PAYMENT_REJECTED,
+                            ])
+                            ->whereNull('payment_instructions_issued_at');
+                    })
+                    ->orWhere('payment_review_required', true)
+                    ->orWhere(function ($expiredQuery) {
+                        $expiredQuery
+                            ->whereNotNull('payment_due_at')
+                            ->where('payment_due_at', '<=', now())
+                            ->whereIn('payment_status', [
+                                Order::PAYMENT_AWAITING_PAYMENT,
+                                Order::PAYMENT_UNDER_VERIFICATION,
+                            ]);
+                    })
+                    ->orWhere('payment_status', Order::PAYMENT_UNDER_VERIFICATION)
+                    ->orWhere(function ($readyQuery) {
+                        $readyQuery
+                            ->where('status', Order::STATUS_PENDING_CONFIRMATION)
+                            ->where('payment_status', Order::PAYMENT_PAID);
+                    });
+            })
+            ->count();
+        $awaitingPaymentOrders = Order::query()
+            ->where('status', '!=', Order::STATUS_CANCELLED)
+            ->where('payment_status', Order::PAYMENT_AWAITING_PAYMENT)
+            ->count();
+        $paymentsUnderVerification = Order::query()
+            ->where('payment_status', Order::PAYMENT_UNDER_VERIFICATION)
+            ->count();
 
         return view('admin.orders.index', compact(
             'orders',
@@ -118,6 +180,10 @@ class OrderController extends Controller
             'statusLabels',
             'paymentStatusLabels',
             'sort',
+            'totalOrders',
+            'ordersRequiringAction',
+            'awaitingPaymentOrders',
+            'paymentsUnderVerification',
         ) + ['attention' => $request->input('attention')]);
     }
 

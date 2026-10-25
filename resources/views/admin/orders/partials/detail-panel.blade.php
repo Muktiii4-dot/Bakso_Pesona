@@ -22,7 +22,7 @@
     <div class="border-b border-gray-100 pb-4">
         <p class="text-[11px] font-bold uppercase tracking-wider text-pesona-orange">Detail Pesanan Terpilih</p>
         <h2 class="mt-1 break-all text-xl font-black text-pesona-dark">{{ $order->order_number }}</h2>
-        <p class="mt-1 text-xs text-gray-500">Dibuat pada {{ $order->created_at->format('d M Y, H:i') }} WIB</p>
+        <p class="mt-1 text-xs text-gray-500">Dibuat pada {{ $order->created_at->timezone('Asia/Jakarta')->format('d M Y, H:i') }} WIB</p>
         <div class="mt-3 flex flex-wrap gap-2">
             <span class="inline-flex rounded-full border px-2.5 py-0.5 text-xs font-bold {{ $statusClasses[$order->status] ?? 'border-gray-200 bg-gray-100 text-gray-700' }}">{{ $order->status_label }}</span>
             <span class="inline-flex rounded-full border px-2.5 py-0.5 text-xs font-bold {{ $paymentClasses[$order->payment_status] ?? 'border-gray-200 bg-gray-100 text-gray-700' }}">{{ $order->payment_status_label }}</span>
@@ -101,7 +101,7 @@
         @endif
     </div>
 
-    <a href="{{ route('admin.orders.show', $order) }}" class="flex w-full items-center justify-center rounded-xl bg-pesona-dark px-4 py-3 text-xs font-bold text-white transition hover:bg-black">
+    <a href="{{ route('admin.orders.show', ['order' => $order->id] + request()->query()) }}" class="flex w-full items-center justify-center rounded-xl bg-pesona-dark px-4 py-3 text-xs font-bold text-white transition hover:bg-black">
         Buka detail & tindakan pesanan
     </a>
 </div>

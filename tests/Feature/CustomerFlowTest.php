@@ -619,6 +619,11 @@ class CustomerFlowTest extends TestCase
 
     public function test_customer_only_sees_qris_instructions_for_qris_orders(): void
     {
+        config([
+            'bakso_pesona.qris.image' => 'images/Qris_usaha.jpg',
+            'bakso_pesona.qris.merchant_name' => 'Bakso Pesona',
+        ]);
+
         $customer = User::factory()->create(['role' => 'customer']);
         $qrisOrder = Order::factory()->for($customer, 'user')->create([
             'payment_method' => 'qris',
@@ -643,9 +648,13 @@ class CustomerFlowTest extends TestCase
             ->get(route('orders.show', $qrisOrder));
 
         $qrisResponse->assertOk();
-        $qrisResponse->assertSee('QRIS resmi belum tersedia.');
+        $qrisResponse->assertSee('Tampilkan QRIS');
+        $qrisResponse->assertSee('<dialog', false);
+        $qrisResponse->assertSee('src="'.asset('images/Qris_usaha.jpg').'"', false);
         $qrisResponse->assertSee('Rp 62.000');
+        $qrisResponse->assertSee('QRIS ini bersifat statis.');
         $qrisResponse->assertDontSee('Transfer Bank');
+        $this->assertSame(Order::PAYMENT_AWAITING_PAYMENT, $qrisOrder->fresh()->payment_status);
 
         $legacyResponse = $this->get(route('orders.show', $legacyOrder));
 

@@ -8,7 +8,7 @@
     {{-- NAVIGASI KEMBALI & HEADER UTAMA --}}
     <div>
         <a
-            href="{{ route('admin.orders.index') }}"
+            href="{{ route('admin.orders.index', request()->query()) }}"
             class="inline-flex items-center gap-1.5 text-xs font-bold uppercase tracking-wider text-pesona-orange hover:underline"
         >
             &larr; Kembali ke Daftar Pesanan
@@ -16,7 +16,7 @@
 
         <div class="mt-3 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
             <div>
-                <span class="text-xs font-semibold text-gray-500">Nomor Pesanan</span>
+                <span class="text-xs font-bold uppercase tracking-wider text-pesona-orange">Detail Pesanan</span>
                 <h1 class="text-2xl font-black text-pesona-dark sm:text-3xl">
                     {{ $order->order_number }}
                 </h1>
@@ -94,15 +94,24 @@
                             $cleanPhone = preg_replace('/[^0-9]/', '', $order->phone);
                             if (str_starts_with($cleanPhone, '0')) {
                                 $cleanPhone = '62' . substr($cleanPhone, 1);
+                            } elseif (str_starts_with($cleanPhone, '8')) {
+                                $cleanPhone = '62' . $cleanPhone;
                             }
+                            $whatsappPhoneIsValid = strlen($cleanPhone) >= 10 && strlen($cleanPhone) <= 15;
+                            $whatsappMessage = rawurlencode('Halo, saya menghubungi terkait pesanan ' . $order->order_number . '.');
                         @endphp
-                        <a
-                            href="https://wa.me/{{ $cleanPhone }}?text={{ urlencode('Halo Kak ' . $order->recipient_name . ', ini dari Admin Bakso Pesona mengenai pesanan ' . $order->order_number) }}"
-                            target="_blank"
-                            class="mt-1.5 inline-flex items-center gap-1.5 rounded-lg bg-emerald-50 px-2.5 py-1 text-xs font-bold text-emerald-700 transition hover:bg-emerald-100"
-                        >
-                            <span>Hubungi via WhatsApp</span> &rarr;
-                        </a>
+                        @if ($whatsappPhoneIsValid)
+                            <a
+                                href="https://wa.me/{{ $cleanPhone }}?text={{ $whatsappMessage }}"
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                class="mt-1.5 inline-flex items-center gap-1.5 rounded-lg bg-emerald-50 px-2.5 py-1 text-xs font-bold text-emerald-700 transition hover:bg-emerald-100"
+                            >
+                                <span>Hubungi via WhatsApp</span> &rarr;
+                            </a>
+                        @else
+                            <p class="mt-1 text-xs text-red-600">Nomor WhatsApp tidak tersedia atau tidak valid.</p>
+                        @endif
                     </div>
 
                     <div>
@@ -364,7 +373,7 @@
                         </thead>
 
                         <tbody class="divide-y divide-gray-100">
-                            @foreach ($order->items as $item)
+                            @forelse ($order->items as $item)
                                 <tr>
                                     <td class="px-5 py-4 font-bold text-pesona-dark">
                                         {{ $item->product_name }}
@@ -387,7 +396,11 @@
                                         Rp{{ number_format(\App\Models\Order::rupiahToInt($item->subtotal), 0, ',', '.') }}
                                     </td>
                                 </tr>
-                            @endforeach
+                            @empty
+                                <tr>
+                                    <td colspan="4" class="px-5 py-8 text-center text-sm text-gray-500">Tidak ada item pesanan yang tersimpan.</td>
+                                </tr>
+                            @endforelse
                         </tbody>
                     </table>
                 </div>
@@ -461,7 +474,7 @@
                     <li>
                         <div class="flex flex-wrap items-center justify-between gap-2">
                             <p class="text-sm font-bold text-gray-800">{{ str($event->event_type)->replace('_', ' ')->title() }}</p>
-                            <time class="text-xs text-gray-500">{{ $event->created_at->format('d M Y, H:i:s') }}</time>
+                            <time class="text-xs text-gray-500">{{ $event->created_at->timezone('Asia/Jakarta')->format('d M Y, H:i:s') }} WIB</time>
                         </div>
                         <p class="mt-1 text-xs text-gray-600">{{ $event->actor?->name ?? ucfirst($event->actor_type) }}</p>
                         @if ($event->old_values || $event->new_values || $event->metadata)

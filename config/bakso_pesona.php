@@ -12,8 +12,8 @@ return [
     'store_name' => 'Bakso Pesona',
     'contact_email' => env('BAKSO_PESONA_CONTACT_EMAIL'),
     'qris' => [
-        'image' => env('BAKSO_PESONA_QRIS_IMAGE'),
-        'merchant_name' => env('BAKSO_PESONA_QRIS_MERCHANT_NAME'),
+        'image' => env('BAKSO_PESONA_QRIS_IMAGE') ?: 'images/Qris_usaha.jpg',
+        'merchant_name' => env('BAKSO_PESONA_QRIS_MERCHANT_NAME') ?: 'Bakso Pesona',
     ],
     'admin_seed' => [
         'email' => env('BAKSO_PESONA_ADMIN_EMAIL'),

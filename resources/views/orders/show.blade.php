@@ -122,44 +122,87 @@
                         </div>
 
                         @if ($order->payment_method === 'qris')
-                            <div class="mt-6 grid gap-6 sm:grid-cols-2">
-                                {{-- QRIS RESMI --}}
-                            <div class="rounded-2xl border border-orange-200 bg-white p-5 text-center flex flex-col items-center justify-center shadow-sm">
-                                <div class="flex items-center gap-2 mb-2">
-                                    <span class="text-xs font-black tracking-wider text-gray-800 uppercase">QRIS Statis Resmi</span>
-                                </div>
-                                <div class="h-44 w-44 rounded-xl border border-dashed border-orange-300 bg-orange-50/50 flex flex-col items-center justify-center p-3 text-center">
-                                    @if ($order->payment_method === 'qris' && config('bakso_pesona.qris.image') && is_file(public_path(config('bakso_pesona.qris.image'))) && config('bakso_pesona.qris.merchant_name'))
-                                        <img src="{{ asset(config('bakso_pesona.qris.image')) }}" alt="QRIS resmi {{ config('bakso_pesona.qris.merchant_name') }}" class="max-h-full max-w-full rounded-lg object-contain">
+                            @php
+                                $qrisImage = config('bakso_pesona.qris.image');
+                                $qrisMerchant = config('bakso_pesona.qris.merchant_name');
+                                $qrisAvailable = is_string($qrisImage)
+                                    && $qrisImage !== ''
+                                    && ! str_contains($qrisImage, '..')
+                                    && is_file(public_path($qrisImage))
+                                    && is_string($qrisMerchant)
+                                    && $qrisMerchant !== '';
+                            @endphp
+                            <div
+                                class="mt-6 grid gap-6 sm:grid-cols-2"
+                                x-data="{}"
+                            >
+                                <div class="rounded-2xl border border-orange-200 bg-white p-5 text-center shadow-sm">
+                                    <p class="text-xs font-black tracking-wider text-gray-800 uppercase">QRIS Statis Resmi</p>
+                                    @if ($qrisAvailable)
+                                        <p class="mt-2 text-sm font-semibold text-gray-700">{{ $qrisMerchant }}</p>
+                                        <button
+                                            type="button"
+                                            @click="$refs.qrisDialog.showModal()"
+                                            class="mt-4 inline-flex items-center justify-center rounded-xl bg-[#B83B25] px-5 py-3 text-sm font-bold text-white transition hover:bg-[#74191B] focus:outline-none focus:ring-2 focus:ring-[#B83B25] focus:ring-offset-2"
+                                        >
+                                            Tampilkan QRIS
+                                        </button>
+                                        <p class="mt-3 text-xs leading-5 text-gray-500">Pindai QRIS, lalu masukkan nominal sesuai total pesanan.</p>
                                     @else
-                                        <span class="text-xs font-semibold text-gray-600">QRIS resmi belum tersedia. Hubungi admin melalui kontak resmi.</span>
+                                        <p class="mt-4 text-xs font-semibold text-gray-600">QRIS resmi belum tersedia. Hubungi admin melalui kontak resmi.</p>
                                     @endif
                                 </div>
-                                @if (config('bakso_pesona.qris.merchant_name'))
-                                    <p class="mt-3 text-xs text-gray-500 font-medium">{{ config('bakso_pesona.qris.merchant_name') }}</p>
-                                @endif
-                            </div>
 
-                            <div class="space-y-4 flex flex-col justify-between">
-                                <div class="rounded-2xl bg-orange-100/60 p-4 text-xs text-gray-700 space-y-1.5">
-                                    <p class="font-bold text-pesona-dark">Petunjuk Pembayaran:</p>
-                                    <ol class="list-decimal pl-4 space-y-1">
-                                        <li>Pindai QRIS statis resmi dan pastikan nama merchant sesuai.</li>
-                                        <li>Masukkan nominal tepat sesuai total akhir: Rp{{ number_format(\App\Models\Order::rupiahToInt($order->total_amount), 0, ',', '.') }}.</li>
-                                        <li>Jika ada kendala, hubungi admin. Pembayaran lunas hanya setelah transaksi aktual diverifikasi.</li>
-                                    </ol>
+                                <div class="space-y-4 flex flex-col justify-between">
+                                    <div class="rounded-2xl bg-orange-100/60 p-4 text-xs text-gray-700 space-y-1.5">
+                                        <p class="font-bold text-pesona-dark">Petunjuk Pembayaran:</p>
+                                        <ol class="list-decimal pl-4 space-y-1">
+                                            <li>Pindai QRIS statis resmi dan pastikan nama merchant sesuai.</li>
+                                            <li>Masukkan nominal tepat sesuai total akhir: Rp{{ number_format(\App\Models\Order::rupiahToInt($order->total_amount), 0, ',', '.') }}.</li>
+                                            <li>Jika ada kendala, hubungi admin. Pembayaran lunas hanya setelah transaksi aktual diverifikasi.</li>
+                                        </ol>
+                                    </div>
+
+                                    @if ($order->payment_due_at)
+                                        <p class="text-xs font-semibold text-red-700">Batas pembayaran: {{ $order->payment_due_at->timezone('Asia/Jakarta')->format('d M Y, H:i') }} WIB</p>
+                                    @endif
+                                    @if ($waLink)
+                                        <a href="{{ $waLink }}" target="_blank" rel="noopener noreferrer" class="inline-flex w-full items-center justify-center gap-2 rounded-xl bg-emerald-600 px-5 py-3 text-sm font-bold text-white shadow-md shadow-emerald-900/10 transition hover:bg-emerald-700">
+                                            Hubungi Admin via WhatsApp
+                                        </a>
+                                    @endif
                                 </div>
 
-                                @if ($order->payment_due_at)
-                                    <p class="text-xs font-semibold text-red-700">Batas pembayaran: {{ $order->payment_due_at->timezone('Asia/Jakarta')->format('d M Y, H:i') }} WIB</p>
-                                @endif
-                                @if ($waLink)
-                                    <a href="{{ $waLink }}" target="_blank" rel="noopener noreferrer" class="inline-flex w-full items-center justify-center gap-2 rounded-xl bg-emerald-600 px-5 py-3 text-sm font-bold text-white shadow-md shadow-emerald-900/10 transition hover:bg-emerald-700">
-                                        Hubungi Admin via WhatsApp
-                                    </a>
+                                @if ($qrisAvailable)
+                                    <dialog
+                                        x-ref="qrisDialog"
+                                        @click.self="$refs.qrisDialog.close()"
+                                        aria-labelledby="qris-dialog-title"
+                                        class="m-auto max-h-[90vh] w-full max-w-lg overflow-y-auto rounded-2xl bg-white p-5 shadow-2xl backdrop:bg-black/70 sm:p-7"
+                                    >
+                                        <button
+                                            type="button"
+                                            @click="$refs.qrisDialog.close()"
+                                            aria-label="Tutup QRIS"
+                                            class="absolute right-3 top-3 inline-flex h-10 w-10 items-center justify-center rounded-full text-2xl text-gray-500 transition hover:bg-gray-100 hover:text-gray-900 focus:outline-none focus:ring-2 focus:ring-[#B83B25]"
+                                        >
+                                            &times;
+                                        </button>
+                                        <h3 id="qris-dialog-title" class="pr-10 text-lg font-black text-pesona-dark">Bayar dengan QRIS Bakso Pesona</h3>
+                                        <p class="mt-1 text-sm text-gray-600">Pastikan merchant yang tampil adalah {{ $qrisMerchant }}.</p>
+                                        <img
+                                            src="{{ asset($qrisImage) }}"
+                                            alt="Kode QRIS resmi {{ $qrisMerchant }}"
+                                            class="mx-auto mt-5 max-h-[55vh] w-auto max-w-full rounded-lg object-contain"
+                                        >
+                                        <div class="mt-5 rounded-xl bg-orange-50 p-4 text-center">
+                                            <p class="text-xs font-semibold text-gray-600">Masukkan nominal pembayaran</p>
+                                            <p class="mt-1 text-2xl font-black text-[#B83B25]">Rp{{ number_format(\App\Models\Order::rupiahToInt($order->total_amount), 0, ',', '.') }}</p>
+                                        </div>
+                                        <p class="mt-3 text-xs leading-5 text-gray-600">QRIS ini bersifat statis. Masukkan nominal di atas secara manual. Pembayaran baru dianggap lunas setelah admin memverifikasi transaksi aktual.</p>
+                                    </dialog>
                                 @endif
                             </div>
-                        </div>
                         @else
                             <div class="mt-6 rounded-2xl border border-amber-200 bg-amber-50 p-5 text-sm text-amber-900">
                                 <p class="font-bold">Instruksi pembayaran pesanan lama perlu dikonfirmasi.</p>

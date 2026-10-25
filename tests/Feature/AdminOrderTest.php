@@ -79,6 +79,26 @@ class AdminOrderTest extends TestCase
         $showResponse->assertSee($order->order_number);
     }
 
+    public function test_admin_order_detail_preserves_list_context_and_validates_the_whatsapp_link(): void
+    {
+        $order = $this->createOrder();
+        $query = [
+            'search' => 'BP-TEST',
+            'date_from' => '2026-10-25',
+            'page' => 2,
+        ];
+
+        $response = $this->actingAs($this->admin, 'admin')
+            ->get(route('admin.orders.show', ['order' => $order->id] + $query));
+
+        $response->assertOk();
+        $response->assertSee('Detail Pesanan');
+        $response->assertSee('https://wa.me/628123456789?text=Halo%2C%20saya%20menghubungi%20terkait%20pesanan%20'.$order->order_number, false);
+        $response->assertSee('date_from=2026-10-25', false);
+        $response->assertSee('page=2', false);
+        $response->assertSee('rel="noopener noreferrer"', false);
+    }
+
     public function test_admin_can_confirm_shipping_cost_and_update_status(): void
     {
         $order = $this->createOrder();
@@ -507,6 +527,70 @@ class AdminOrderTest extends TestCase
         $statusResponse->assertStatus(200);
         $statusResponse->assertSee('BP-SEARCH-222');
         $statusResponse->assertDontSee('BP-SEARCH-111');
+    }
+
+    public function test_admin_can_filter_orders_by_created_date_range_and_keep_the_filters_in_pagination(): void
+    {
+        $this->travelTo('2026-10-25T12:00:00+07:00');
+        $todayOrder = $this->createOrder([
+            'order_number' => 'BP-DATE-TODAY-WIB',
+        ]);
+        $todayOrder->forceFill([
+            'created_at' => '2026-10-24 17:30:00',
+            'updated_at' => '2026-10-24 17:30:00',
+        ])->save();
+        $tomorrowOrder = $this->createOrder([
+            'order_number' => 'BP-DATE-TOMORROW-WIB',
+        ]);
+        $tomorrowOrder->forceFill([
+            'created_at' => '2026-10-25 17:00:00',
+            'updated_at' => '2026-10-25 17:00:00',
+        ])->save();
+        foreach (range(1, 10) as $index) {
+            $this->createOrder([
+                'order_number' => 'BP-DATE-PAGINATION-'.$index,
+            ]);
+        }
+
+        $response = $this->actingAs($this->admin, 'admin')->get(route('admin.orders.index', [
+            'date_from' => '2026-10-25',
+            'date_to' => '2026-10-25',
+        ]));
+
+        $response->assertOk();
+        $response->assertDontSee('BP-DATE-TOMORROW-WIB');
+        $response->assertSee('name="date_from"', false);
+        $response->assertSee('value="2026-10-25"', false);
+        $response->assertSee('name="date_to"', false);
+        $response->assertSee('date_from=2026-10-25&amp;date_to=2026-10-25&amp;page=2', false);
+        $this->assertSame(11, $response->viewData('orders')->total());
+
+        $secondPageResponse = $this->actingAs($this->admin, 'admin')->get(route('admin.orders.index', [
+            'date_from' => '2026-10-25',
+            'date_to' => '2026-10-25',
+            'page' => 2,
+        ]));
+
+        $secondPageResponse->assertOk();
+        $secondPageResponse->assertSee($todayOrder->order_number);
+        $this->assertSame(11, $secondPageResponse->viewData('orders')->total());
+    }
+
+    public function test_admin_order_index_selection_renders_summary_on_mobile_and_does_not_change_the_order(): void
+    {
+        $order = $this->createOrder();
+
+        $response = $this->actingAs($this->admin, 'admin')->get(route('admin.orders.index', [
+            'selected' => $order->id,
+        ]));
+
+        $response->assertOk();
+        $response->assertSee('aria-current="true"', false);
+        $response->assertSee('lg:hidden', false);
+        $response->assertSee('Buka detail');
+        $response->assertSee(route('admin.orders.show', $order), false);
+        $this->assertSame(Order::STATUS_PENDING_CONFIRMATION, $order->fresh()->status);
+        $this->assertNull($order->fresh()->payment_due_at);
     }
 
     public function test_admin_can_moderate_a_rating_and_the_action_is_audited(): void
